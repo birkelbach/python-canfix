@@ -1,10 +1,12 @@
 from distutils.core import setup
 
 setup(
-    name='Python CANFIX',
+    name='python-canfix',
     version='0.1.0',
-    packages=['canfix'],
     long_description=open('README').read(),
-    license='GNU General Public License Version 2', 
+    license='GNU General Public License Version 2',
+    url='https://github.com/birkelbach/python-canfix', 
+    packages=['canfix'],
+    package_data = {'canfix':['canfix.xml']},
 )
 
