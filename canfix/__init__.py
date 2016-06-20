@@ -28,6 +28,8 @@ class NodeAlarm(object):
     def __init__(self, msg=None):
         if msg != None:
             self.setMessage(msg)
+        else:
+            self.data = []
 
     def setMessage(self, msg):
         self.node = msg.arbitration_id
@@ -40,8 +42,8 @@ class NodeAlarm(object):
     def getMessage(self):
         msg = can.Message(extended_id=False)
         msg.arbitration_id = self.node
-        msg.data.append(self.alarm % 256)
-        msg.data.append(self.alarm / 256)
+        msg.data.append(int(self.alarm % 256))
+        msg.data.append(int(self.alarm / 256))
         for each in self.data:
             msg.data.append(each)
         return msg
@@ -60,6 +62,7 @@ class Parameter(object):
             if len(msg.data) < 4: return None
             self.setMessage(msg)
         else:
+            self.__name = ""
             self.__failure = False
             self.__quality = False
             self.__annunciate = False
@@ -87,12 +90,12 @@ class Parameter(object):
         """Set the identifier of the Parameter, identifier can be either
         the actual integer identifier or the name of the parameter"""
         if identifier in parameters:
-            self.msg = can.Message(identifier, extended_id=False)
+            self._msg = can.Message(arbitration_id=identifier, extended_id=False)
         else:
             raise ValueError("Bad Parameter Identifier Given")
 
-        self.__identifier = self.msg.arbitration_id
-        self.__parameterData(self.msg.arbitration_id)
+        self.__identifier = self._msg.arbitration_id
+        self.__parameterData(self._msg.arbitration_id)
 
     def getIdentifier(self):
         return self.__identifier
@@ -103,7 +106,7 @@ class Parameter(object):
         s = name.upper()
         for i in parameters:
             if parameters[i].name.upper() == s:
-                self.__msg = can.Message(i, extended_id=False)
+                self.__msg = can.Message(arbitration_id=i, extended_id=False)
                 self.__identifier = i
                 self.__parameterData(self.__msg.arbitration_id)
                 return
@@ -203,7 +206,7 @@ class Parameter(object):
         self.updated = time.time()
 
     def getMessage(self):
-        self.data = []
+        self.data = bytearray([])
         self.data.append(self.node % 256)
         if self.index:
             self.data.append(self.index % 256)
@@ -336,7 +339,7 @@ class TwoWayMsg(object):
             self.type = "Request"
 
     def setMessage(self, msg):
-        self.channel = (msg.arbitration_id - 1760) /2
+        self.channel = int((msg.arbitration_id - 1760) /2)
         self.data = msg.data
         if msg.arbitration_id % 2 == 0:
             self.type = "Request"
@@ -377,12 +380,12 @@ class NodeSpecific(object):
         self.data = msg.data[2:]
 
     def getMessage(self):
-        f = can.Message(self.sendNode + 1792, extended_id=False)
-        f.data.append(self.destNode)
-        f.data.append(self.controlCode)
+        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg.data.append(self.destNode)
+        msg.data.append(self.controlCode)
         for each in self.data:
-            f.data.append(each)
-        return f
+            msg.data.append(each)
+        return msg
 
     msg = property(getMessage, setMessage)
 
@@ -444,7 +447,7 @@ def getValue(datatype, data, multiplier):
     except KeyError:
         # If we get a KeyError on the dict then it's a CHAR
         if "CHAR" in datatype:
-            return str(data)
+            return data.decode("utf-8")
         return None
     except struct.error:
         return None
@@ -458,8 +461,12 @@ def setValue(datatype, value, multiplier=1):
     elif datatype == "WORD":
         return None
     try:
-        x = struct.pack(table[datatype], value / multiplier)
-        return [ord(y) for y in x] # Convert packed string into ints
+        if datatype != "FLOAT":
+            x = struct.pack(table[datatype], int(value / multiplier))
+        else:
+            x = struct.pack(table[datatype], value / multiplier)
+        return x
+        #return [ord(y) for y in x] # Convert packed string into ints
     except KeyError:
         if "CHAR" in datatype:
             return [ord(value)]
