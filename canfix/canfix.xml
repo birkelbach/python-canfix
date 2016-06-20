@@ -1,6 +1,6 @@
 <protocol>
 <name>CANFIX</name>
-<version>0.5</version>
+<version>0.6</version>
 <group>
   <name>High Priority Node Alarms</name>
   <startid>1</startid>
@@ -220,22 +220,22 @@
 <parameter>
   <id>282</id>
   <count>2</count>
-  <name>Encoder Input</name>
+  <name>Encoder Input (High Priority)</name>
   <type>INT</type>
   <format>Steps Moved</format>
   <remarks>Less than 0 = CCW, Greater than 0 = CW</remarks>
 </parameter>
 <parameter>
   <id>284</id>
-  <count>2</count>
-  <name>Generic Switches</name>
+  <count>8</count>
+  <name>Generic Switches (High Priority)</name>
   <type>BYTE[5]</type>
   <format>Discrete Bits</format>
   <index>Unit</index>
   <remarks>User Defined For Multiplexing Switches</remarks>
 </parameter>
 <parameter>
-  <id>286</id>
+  <id>292</id>
   <count>1</count>
   <name>Pitch Control Position</name>
   <type>INT</type>
@@ -246,7 +246,7 @@
   <remarks>Greater Than 0 = Nose Up</remarks>
 </parameter>
 <parameter>
-  <id>287</id>
+  <id>293</id>
   <count>1</count>
   <name>Roll Control Position</name>
   <type>INT</type>
@@ -257,7 +257,7 @@
   <remarks>Greater Than 0 = Right</remarks>
 </parameter>
 <parameter>
-  <id>288</id>
+  <id>294</id>
   <count>1</count>
   <name>Yaw Control Position</name>
   <type>INT</type>
@@ -268,7 +268,7 @@
   <remarks>Greater Than 0 = Right</remarks>
 </parameter>
 <parameter>
-  <id>289</id>
+  <id>295</id>
   <count>1</count>
   <name>Collective Control Position</name>
   <type>INT</type>
@@ -279,7 +279,7 @@
   <remarks>Greater Than 0 = Up</remarks>
 </parameter>
 <parameter>
-  <id>290</id>
+  <id>296</id>
   <count>1</count>
   <name>Anti-Torque Pedals Position</name>
   <type>INT</type>
@@ -290,7 +290,7 @@
   <remarks>Greater Than 0 = Right</remarks>
 </parameter>
 <parameter>
-  <id>291</id>
+  <id>297</id>
   <count>1</count>
   <name>Flap Control Position</name>
   <type>INT</type>
@@ -301,7 +301,7 @@
   <remarks>Greater Than 0 = Down</remarks>
 </parameter>
 <parameter>
-  <id>292</id>
+  <id>298</id>
   <count>1</count>
   <name>Left Brake Control Position</name>
   <type>UINT</type>
@@ -311,7 +311,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>293</id>
+  <id>299</id>
   <count>1</count>
   <name>Right Brake Control Position</name>
   <type>UINT</type>
@@ -321,7 +321,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>294</id>
+  <id>300</id>
   <count>2</count>
   <name>Engine Throttle Control Position</name>
   <type>UINT</type>
@@ -331,7 +331,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>296</id>
+  <id>302</id>
   <count>2</count>
   <name>Engine Prop Control Position</name>
   <type>UINT</type>
@@ -341,7 +341,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>298</id>
+  <id>304</id>
   <count>2</count>
   <name>Engine Mixture Control Position</name>
   <type>UINT</type>
@@ -351,9 +351,9 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>300</id>
-  <count>4</count>
-  <name>Generic Analog Control</name>
+  <id>306</id>
+  <count>2</count>
+  <name>Generic Analog Control (High Priority)</name>
   <type>UINT</type>
   <min>0</min>
   <max>100</max>
@@ -463,8 +463,6 @@
   <multiplier>0.01</multiplier>
   <units>deg</units>
   <remarks>Greater Than 0 = Nose Up</remarks>
-  <aux id='1'>Min</aux>
-  <aux id='2'>Max</aux>
 </parameter>
 <parameter>
   <id>385</id>
@@ -476,8 +474,6 @@
   <multiplier>0.01</multiplier>
   <units>deg</units>
   <remarks>Greater Than 0 = Right</remarks>
-  <aux id='1'>Min</aux>
-  <aux id='2'>Max</aux>
 </parameter>
 <parameter>
   <id>386</id>
@@ -524,7 +520,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -545,7 +540,6 @@
   <type>INT</type>
   <min>-30,000</min>
   <max>30,000</max>
-  <multiplier>1</multiplier>
   <units>ft/min</units>
   <aux id='1'>Min</aux>
   <aux id='2'>Max</aux>
@@ -569,7 +563,6 @@
   <type>UINT</type>
   <min>0</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
   <aux id='1'>Min</aux>
   <aux id='2'>Max</aux>
@@ -685,7 +678,6 @@
   <type>DINT</type>
   <min>-1,000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -725,7 +717,6 @@
   <type>FLOAT</type>
   <min>-90</min>
   <max>90</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
 </parameter>
 <parameter>
@@ -735,7 +726,6 @@
   <type>FLOAT</type>
   <min>-180</min>
   <max>180</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
 </parameter>
 <parameter>
@@ -747,7 +737,6 @@
   <max>2000</max>
   <multiplier>0.1</multiplier>
   <units>knots</units>
-  <aux id='3'>In Flight Threshold</aux>
 </parameter>
 <parameter>
   <id>454</id>
@@ -804,7 +793,6 @@
   <type>INT</type>
   <min>-30,000</min>
   <max>30,000</max>
-  <multiplier>1</multiplier>
   <units>ft/min</units>
 </parameter>
 <parameter>
@@ -814,7 +802,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -830,7 +817,6 @@
   <count>1</count>
   <name>RAIM Horizontal Error</name>
   <type>UINT</type>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -838,7 +824,6 @@
   <count>1</count>
   <name>RAIM Vertical Error</name>
   <type>UINT</type>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -848,7 +833,6 @@
   <type>FLOAT</type>
   <min>-90</min>
   <max>90</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
   <index>Aircraft</index>
 </parameter>
@@ -859,7 +843,6 @@
   <type>FLOAT</type>
   <min>-180</min>
   <max>180</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
   <index>Aircraft</index>
 </parameter>
@@ -870,7 +853,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
   <index>Aircraft</index>
 </parameter>
@@ -881,7 +863,6 @@
   <type>FLOAT</type>
   <min>-90</min>
   <max>90</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
   <index>Aircraft</index>
 </parameter>
@@ -892,7 +873,6 @@
   <type>FLOAT</type>
   <min>-180</min>
   <max>180</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
   <index>Aircraft</index>
 </parameter>
@@ -903,7 +883,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
   <index>Aircraft</index>
 </parameter>
@@ -957,7 +936,6 @@
   <type>INT</type>
   <min>-30,000</min>
   <max>30,000</max>
-  <multiplier>1</multiplier>
   <units>ft/min</units>
   <index>Aircraft</index>
 </parameter>
@@ -1006,6 +984,7 @@
   <count>2</count>
   <name>N1 or Engine RPM</name>
   <type>UINT</type>
+  <units>RPM</units>
   <remarks>N1 for Turbines</remarks>
   <aux id='1'>Min</aux>
   <aux id='2'>Max</aux>
@@ -1013,12 +992,17 @@
   <aux id='5'>Low Alarm</aux>
   <aux id='6'>High Warn</aux>
   <aux id='7'>High Alarm</aux>
+  <aux id='8'>Restriction 1 Low</aux>
+  <aux id='9'>Restriction 1 High</aux>
+  <aux id='10'>Restriction 2 Low</aux>
+  <aux id='11'>Restriction 2 High</aux>
 </parameter>
 <parameter>
   <id>514</id>
   <count>2</count>
   <name>N2, Prop RPM or Rotor RPM</name>
   <type>UINT</type>
+  <units>RPM</units>
   <remarks>N2 for Turbines</remarks>
   <aux id='1'>Min</aux>
   <aux id='2'>Max</aux>
@@ -1026,6 +1010,10 @@
   <aux id='5'>Low Alarm</aux>
   <aux id='6'>High Warn</aux>
   <aux id='7'>High Alarm</aux>
+  <aux id='8'>Restriction 1 Low</aux>
+  <aux id='9'>Restriction 1 High</aux>
+  <aux id='10'>Restriction 2 Low</aux>
+  <aux id='11'>Restriction 2 High</aux>
 </parameter>
 <parameter>
   <id>516</id>
@@ -1286,7 +1274,6 @@
   <count>2</count>
   <name>Electric Propulsion Motor Current</name>
   <type>UINT</type>
-  <multiplier>1</multiplier>
   <units>A</units>
   <aux id='1'>Min</aux>
   <aux id='2'>Max</aux>
@@ -1314,7 +1301,6 @@
   <count>2</count>
   <name>Main Battery Current</name>
   <type>INT</type>
-  <multiplier>1</multiplier>
   <units>A</units>
   <aux id='1'>Min</aux>
   <aux id='2'>Max</aux>
@@ -1372,11 +1358,27 @@
   <type>INT</type>
   <min>-1,000</min>
   <max>30,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
   <id>768</id>
+  <count>8</count>
+  <name>Encoder Input</name>
+  <type>INT</type>
+  <format>Steps Moved</format>
+  <remarks>Less than 0 = CCW, Greater than 0 = CW</remarks>
+</parameter>
+<parameter>
+  <id>776</id>
+  <count>8</count>
+  <name>Generic Switches</name>
+  <type>BYTE[5]</type>
+  <format>Discrete Bits</format>
+  <index>Unit</index>
+  <remarks>User Defined For Multiplexing Switches</remarks>
+</parameter>
+<parameter>
+  <id>784</id>
   <count>1</count>
   <name>Speedbrake Control Position</name>
   <type>UINT</type>
@@ -1386,7 +1388,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>769</id>
+  <id>785</id>
   <count>1</count>
   <name>Cowl Flaps Control Position</name>
   <type>UINT</type>
@@ -1396,7 +1398,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>770</id>
+  <id>786</id>
   <count>1</count>
   <name>Pitch Trim Control Position</name>
   <type>INT</type>
@@ -1406,7 +1408,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>771</id>
+  <id>787</id>
   <count>1</count>
   <name>Roll Trim Control Position</name>
   <type>INT</type>
@@ -1416,7 +1418,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>772</id>
+  <id>788</id>
   <count>1</count>
   <name>Yaw Trim Control Position</name>
   <type>INT</type>
@@ -1426,7 +1428,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>773</id>
+  <id>789</id>
   <count>1</count>
   <name>Collective Trim Control Position</name>
   <type>INT</type>
@@ -1436,7 +1438,7 @@
   <units>%</units>
 </parameter>
 <parameter>
-  <id>774</id>
+  <id>790</id>
   <count>1</count>
   <name>Anti-Torque Pedals Trim Position</name>
   <type>INT</type>
@@ -1444,6 +1446,18 @@
   <max>100</max>
   <multiplier>0.01</multiplier>
   <units>%</units>
+</parameter>
+<parameter>
+  <id>791</id>
+  <count>8</count>
+  <name>Generic Analog Control</name>
+  <type>UINT</type>
+  <min>0</min>
+  <max>100</max>
+  <multiplier>0.01</multiplier>
+  <units>%</units>
+  <index>Unit</index>
+  <remarks>User Defined</remarks>
 </parameter>
 <parameter>
   <id>896</id>
@@ -1694,7 +1708,6 @@
   <type>DINT</type>
   <min>-1,000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -1704,7 +1717,6 @@
   <type>DINT</type>
   <min>-1,000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -1741,7 +1753,6 @@
   <type>FLOAT</type>
   <min>-90</min>
   <max>90</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
 </parameter>
 <parameter>
@@ -1751,7 +1762,6 @@
   <type>FLOAT</type>
   <min>-180</min>
   <max>180</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
 </parameter>
 <parameter>
@@ -1761,7 +1771,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -1770,7 +1779,6 @@
   <name>Next Waypoint ETA</name>
   <type>USHORT[3]</type>
   <format>Hour, Min, Sec</format>
-  <multiplier>1</multiplier>
   <units>UTC</units>
 </parameter>
 <parameter>
@@ -1794,7 +1802,6 @@
   <type>FLOAT</type>
   <min>-90</min>
   <max>90</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
   <index>Waypoint</index>
 </parameter>
@@ -1805,7 +1812,6 @@
   <type>FLOAT</type>
   <min>-180</min>
   <max>180</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
   <index>Waypoint</index>
 </parameter>
@@ -1816,7 +1822,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
   <index>Waypoint</index>
 </parameter>
@@ -1826,7 +1831,6 @@
   <name>Waypoint ETA</name>
   <type>USHORT[3]</type>
   <format>Hour, Min, Sec</format>
-  <multiplier>1</multiplier>
   <units>UTC</units>
   <index>Waypoint</index>
 </parameter>
@@ -1843,7 +1847,6 @@
   <count>1</count>
   <name>Waypoint, Distance To</name>
   <type>UINT</type>
-  <multiplier>1</multiplier>
   <units>nm</units>
   <index>Waypoint</index>
 </parameter>
@@ -1854,7 +1857,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
   <index>Waypoint</index>
 </parameter>
@@ -1879,7 +1881,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
   <index>Waypoint</index>
 </parameter>
@@ -1904,7 +1905,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
   <index>Waypoint</index>
 </parameter>
@@ -1928,7 +1928,6 @@
   <type>FLOAT</type>
   <min>-90</min>
   <max>90</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
 </parameter>
 <parameter>
@@ -1938,7 +1937,6 @@
   <type>FLOAT</type>
   <min>-180</min>
   <max>180</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
 </parameter>
 <parameter>
@@ -1948,7 +1946,6 @@
   <type>DINT</type>
   <min>-1000</min>
   <max>60,000</max>
-  <multiplier>1</multiplier>
   <units>ft</units>
 </parameter>
 <parameter>
@@ -1957,7 +1954,6 @@
   <name>Destination ETA</name>
   <type>USHORT[3]</type>
   <format>Hour, Min, Sec</format>
-  <multiplier>1</multiplier>
   <units>UTC</units>
 </parameter>
 <parameter>
@@ -1972,7 +1968,6 @@
   <count>1</count>
   <name>Track Error Angle</name>
   <type></type>
-  <multiplier>1</multiplier>
   <units>deg</units>
 </parameter>
 <parameter>
@@ -2015,7 +2010,6 @@
   <type>UINT</type>
   <min>0</min>
   <max>359</max>
-  <multiplier>1</multiplier>
   <units>deg</units>
   <index>1 = Memory Locations</index>
 </parameter>
@@ -2222,7 +2216,6 @@
   <count>2</count>
   <name>Gearbox Speed</name>
   <type>UINT</type>
-  <multiplier>1</multiplier>
   <units>RPM</units>
   <aux id='1'>Min</aux>
   <aux id='2'>Max</aux>
@@ -2449,7 +2442,6 @@
   <type>USHORT</type>
   <min>0</min>
   <max>100</max>
-  <multiplier>1</multiplier>
   <units>%</units>
 </parameter>
 <parameter>
