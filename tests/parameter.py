@@ -313,9 +313,54 @@ class TestParameterSimpleSender(unittest.TestCase):
         p.identifier = 0x103
         self.assertEqual(p.name, "Trim Switches #2")
 
-    # TODO Test meta data setting
-    # TODO Test quality flag setting
-    # TODO Test Index setting
+    def test_ParameterMetaData(self):
+        p = canfix.Parameter()
+        p.identifier = 0x200
+        p.node = 2
+        p.meta = "Low Warn"
+        p.value = 1700
+        msg = p.msg
+        self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x40, 0xA4, 0x06]))
+
+        p.meta = "Min"
+        msg = p.msg
+        self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x10, 0xA4, 0x06]))
+
+    def test_ParameterFlags(self):
+        p = canfix.Parameter()
+        p.node = 5
+        p.identifier = 0x221
+        p.value = 75.6
+        p.annunciate = True
+        p.quality = False
+        p.failure = False
+        msg = p.msg
+        self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x01, 0x88, 0x1D]))
+
+        p.annunciate = True
+        p.quality = False
+        p.failure = False
+        msg = p.msg
+        self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x01, 0x88, 0x1D]))
+
+        p.annunciate = False
+        p.quality = True
+        p.failure = False
+        msg = p.msg
+        self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x02, 0x88, 0x1D]))
+
+        p.annunciate = False
+        p.quality = False
+        p.failure = True
+        msg = p.msg
+        self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x04, 0x88, 0x1D]))
+
+        p.annunciate = True
+        p.quality = False
+        p.failure = True
+        msg = p.msg
+        self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x05, 0x88, 0x1D]))
+
 
 if __name__ == '__main__':
     unittest.main()

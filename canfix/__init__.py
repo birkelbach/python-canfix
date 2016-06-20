@@ -87,15 +87,13 @@ class Parameter(object):
             self.multiplier = 1
 
     def setIdentifier(self, identifier):
-        """Set the identifier of the Parameter, identifier can be either
-        the actual integer identifier or the name of the parameter"""
         if identifier in parameters:
-            self._msg = can.Message(arbitration_id=identifier, extended_id=False)
+            self.__msg = can.Message(arbitration_id=identifier, extended_id=False)
         else:
             raise ValueError("Bad Parameter Identifier Given")
 
-        self.__identifier = self._msg.arbitration_id
-        self.__parameterData(self._msg.arbitration_id)
+        self.__identifier = self.__msg.arbitration_id
+        self.__parameterData(self.__msg.arbitration_id)
 
     def getIdentifier(self):
         return self.__identifier
@@ -462,7 +460,7 @@ def setValue(datatype, value, multiplier=1):
         return None
     try:
         if datatype != "FLOAT":
-            x = struct.pack(table[datatype], int(value / multiplier))
+            x = struct.pack(table[datatype], int(round(value / multiplier)))
         else:
             x = struct.pack(table[datatype], value / multiplier)
         return x
