@@ -94,5 +94,7 @@ class TestNodeSpecific(unittest.TestCase):
         #p.controlCode = 0xFF
         m = p.msg
 
+    # TODO Test default destination node
+
 if __name__ == '__main__':
     unittest.main()
