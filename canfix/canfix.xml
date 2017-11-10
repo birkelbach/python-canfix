@@ -223,6 +223,7 @@
   <name>Encoder Input (High Priority)</name>
   <type>INT</type>
   <format>Steps Moved</format>
+  <index>Unit</index>
   <remarks>Less than 0 = CCW, Greater than 0 = CW</remarks>
 </parameter>
 <parameter>
@@ -1366,6 +1367,7 @@
   <name>Encoder Input</name>
   <type>INT</type>
   <format>Steps Moved</format>
+  <index>Unit</index>
   <remarks>Less than 0 = CCW, Greater than 0 = CW</remarks>
 </parameter>
 <parameter>

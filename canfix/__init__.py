@@ -108,7 +108,7 @@ class Parameter(object):
                 self.__identifier = i
                 self.__parameterData(self.__msg.arbitration_id)
                 return
-        raise ValueError("Unknown Parameter Name")
+        raise ValueError("Unknown Parameter Name - {}".format(name))
 
     def getName(self):
         return self.__name
@@ -368,6 +368,7 @@ class NodeSpecific(object):
         if msg != None:
             self.setMessage(msg)
         else:
+            self.destNode = 0
             self.controlCode = 0
             self.data = []
 
