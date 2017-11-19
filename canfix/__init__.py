@@ -29,8 +29,6 @@ class NodeAlarm(object):
         if msg != None:
             self.setMessage(msg)
         else:
-            self.node = None
-            self.alarm = None
             self.data = []
 
     def setMessage(self, msg):
@@ -371,7 +369,6 @@ class NodeSpecific(object):
         if msg != None:
             self.setMessage(msg)
         else:
-            self.destNode = 0
             self.controlCode = 0
             self.data = []
 
