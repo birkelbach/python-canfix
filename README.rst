@@ -200,3 +200,24 @@ for details.
 
 ``NodeSpecific.data`` - Up to 8 bytes of data that is dependent on which type
 of message that is being sent.
+
+Functions
+---------
+
+``parseMessage(msg)`` - When passed a ``Message`` this function figures
+out what the message type is, instantiates the correct object type and
+returns that object.  This function would be used for most all received
+messages.
+
+Example Usage::
+
+  >>> msg = bus.recv()
+  >>> msg
+  can.Message(timestamp=0.0, is_remote_frame=False, extended_id=False,
+  is_error_frame=False, arbitration_id=0x183, dlc=5,
+  data=[0xc, 0x0, 0x0, 0xd2, 0x4])
+  >>> p = canfix.parseMessage(msg)
+  >>> p
+  <canfix.Parameter object at 0x7f6984fe9c10>
+  >>> print(p)
+  [12] Indicated Airspeed: 123.4 knots
