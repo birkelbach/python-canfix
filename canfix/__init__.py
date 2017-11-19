@@ -29,6 +29,8 @@ class NodeAlarm(object):
         if msg != None:
             self.setMessage(msg)
         else:
+            self.node = None
+            self.alarm = None
             self.data = []
 
     def setMessage(self, msg):
@@ -81,6 +83,7 @@ class Parameter(object):
         self.min = p.min
         self.max = p.max
         self.format = p.format
+        self.remarks = p.remarks
         self.indexName = p.index
         self.multiplier = p.multiplier
         if self.multiplier == None:
