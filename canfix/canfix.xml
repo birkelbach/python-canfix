@@ -1,6 +1,6 @@
 <protocol>
 <name>CANFIX</name>
-<version>0.6</version>
+<version>0.7</version>
 <group>
   <name>High Priority Node Alarms</name>
   <startid>1</startid>
@@ -1672,7 +1672,7 @@
   <count>1</count>
   <name>Static Pressure</name>
   <type>UINT</type>
-  <multiplier>0.1</multiplier>
+  <multiplier>0.01</multiplier>
   <units>inHg</units>
 </parameter>
 <parameter>
@@ -1680,7 +1680,7 @@
   <count>1</count>
   <name>Pitot Pressure</name>
   <type>UINT</type>
-  <multiplier>0.1</multiplier>
+  <multiplier>0.01</multiplier>
   <units>inHg</units>
 </parameter>
 <parameter>
