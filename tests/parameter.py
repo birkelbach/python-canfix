@@ -259,6 +259,7 @@ class TestParameterSimpleSender(unittest.TestCase):
 
         self.assertEqual(msg.arbitration_id, 0x180)
         self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x00, 0x9a, 0xff]))
+        self.assertEqual(msg.dlc,5)
 
     def test_ParameterLongitude(self):
         p = canfix.Parameter()
@@ -269,6 +270,7 @@ class TestParameterSimpleSender(unittest.TestCase):
 
         self.assertEqual(msg.arbitration_id, 0x1C4)
         self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x00, 0xE3, 0xA5, 0xE6, 0xC2]))
+        self.assertEqual(msg.dlc,7)
 
     def test_ParameterAircraftIdentifier(self):
         p = canfix.Parameter()
@@ -279,6 +281,7 @@ class TestParameterSimpleSender(unittest.TestCase):
 
         self.assertEqual(msg.arbitration_id, 0x587)
         self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x00, 0x37, 0x32, 0x37, 0x57, 0x42]))
+        self.assertEqual(msg.dlc,8)
 
     def test_ParameterTime(self):
         p = canfix.Parameter()
@@ -289,6 +292,7 @@ class TestParameterSimpleSender(unittest.TestCase):
 
         self.assertEqual(msg.arbitration_id, 0x580)
         self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x00, 13, 14, 15]))
+        self.assertEqual(msg.dlc,6)
 
     def test_ParameterDate(self):
         p = canfix.Parameter()
@@ -299,6 +303,7 @@ class TestParameterSimpleSender(unittest.TestCase):
 
         self.assertEqual(msg.arbitration_id, 0x581)
         self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x00, 0xB2, 0x07, 7, 27]))
+        self.assertEqual(msg.dlc,7)
 
     def test_ParameterIDsToNames(self):
         p = canfix.Parameter()
@@ -321,10 +326,12 @@ class TestParameterSimpleSender(unittest.TestCase):
         p.value = 1700
         msg = p.msg
         self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x40, 0xA4, 0x06]))
+        self.assertEqual(msg.dlc,5)
 
         p.meta = "Min"
         msg = p.msg
         self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x10, 0xA4, 0x06]))
+        self.assertEqual(msg.dlc,5)
 
     def test_ParameterFlags(self):
         p = canfix.Parameter()
@@ -336,30 +343,35 @@ class TestParameterSimpleSender(unittest.TestCase):
         p.failure = False
         msg = p.msg
         self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x01, 0x88, 0x1D]))
+        self.assertEqual(msg.dlc,5)
 
         p.annunciate = True
         p.quality = False
         p.failure = False
         msg = p.msg
         self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x01, 0x88, 0x1D]))
+        self.assertEqual(msg.dlc,5)
 
         p.annunciate = False
         p.quality = True
         p.failure = False
         msg = p.msg
         self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x02, 0x88, 0x1D]))
+        self.assertEqual(msg.dlc,5)
 
         p.annunciate = False
         p.quality = False
         p.failure = True
         msg = p.msg
         self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x04, 0x88, 0x1D]))
+        self.assertEqual(msg.dlc,5)
 
         p.annunciate = True
         p.quality = False
         p.failure = True
         msg = p.msg
         self.assertEqual(msg.data, bytearray([0x05, 0x00, 0x05, 0x88, 0x1D]))
+        self.assertEqual(msg.dlc,5)
 
 
 if __name__ == '__main__':

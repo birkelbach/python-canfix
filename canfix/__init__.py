@@ -20,8 +20,11 @@
 
 import struct
 import time
+import logging
 import can
 from .protocol import parameters
+
+log = logging.getLogger("canfix")
 
 class NodeAlarm(object):
     """Represents a Node Alarm"""
@@ -58,10 +61,12 @@ class NodeAlarm(object):
 class Parameter(object):
     """Represents a normal parameter update message frame"""
     def __init__(self, msg=None):
-        if msg != None:
-            if len(msg.data) < 4: return None
+        if msg != None and len(msg.data) >= 4:
+            log.debug("Creating Parameter with message: {}".format(str(msg)))
+            #if len(msg.data) < 4: return None
             self.setMessage(msg)
         else:
+            log.debug("Creating Parameter with default values")
             self.__name = ""
             self.__failure = False
             self.__quality = False
@@ -89,6 +94,7 @@ class Parameter(object):
 
     def setIdentifier(self, identifier):
         if identifier in parameters:
+            log.debug("Setting parameter id {}".format(identifier))
             self.__msg = can.Message(arbitration_id=identifier, extended_id=False)
         else:
             raise ValueError("Bad Parameter Identifier Given")
@@ -105,6 +111,7 @@ class Parameter(object):
         s = name.upper()
         for i in parameters:
             if parameters[i].name.upper() == s:
+                log.debug("Setting parameter id to {}, based on name {}".format(i, name))
                 self.__msg = can.Message(arbitration_id=i, extended_id=False)
                 self.__identifier = i
                 self.__parameterData(self.__msg.arbitration_id)
@@ -205,7 +212,9 @@ class Parameter(object):
         self.updated = time.time()
 
     def getMessage(self):
+        log.debug("Producing CAN message for {}. Value = {}".format(self.name, self.value))
         self.data = bytearray([])
+
         self.data.append(self.node % 256)
         if self.index:
             self.data.append(self.index % 256)
@@ -215,6 +224,7 @@ class Parameter(object):
         self.data.append(self.function)
         self.data.extend(self.pack())
         self.__msg.data = self.data
+        self.__msg.dlc = len(self.data)
         return self.__msg
 
     msg = property(getMessage, setMessage)
@@ -239,6 +249,8 @@ class Parameter(object):
                 return str(self.value)
 
     def unpack(self):
+        # TODO: Make sure that self.data is the right size.  Should log error
+        #       and set the failure bit.
         if self.type == "UINT, USHORT[2]": #Unusual case of the date
             x = []
             x.append(getValue("UINT", self.data[0:2],1))
@@ -388,6 +400,18 @@ class NodeSpecific(object):
 
     msg = property(getMessage, setMessage)
 
+    def setNodeIdentification(self, device, fwrev, model):
+        """This is a convenience function for setting the data
+           for a Node Identification response"""
+        self.controlCode = 0x00
+        self.data = [0x01, device, fwrev, model & 0x0000FF,
+                     (model & 0x00FF00) >> 8, (model & 0xFF0000) >> 16]
+
+    def getParameterID(self):
+        """This is a convenience function that assembles and returns
+            the parameter id for Disable/Enable Parameter messages"""
+        return (data[1] << 8) + data[0]
+
     def __str__(self):
         s = '[' + str(self.sendNode) + ']'
         s = s + "->[" + str(self.destNode) + '] '
@@ -474,6 +498,7 @@ def setValue(datatype, value, multiplier=1):
 def parseMessage(msg):
     """Determine what type of CAN-FIX msg this is and return an object
        that represents that msg type properly.  Returns None on error"""
+    log.debug("Parsing message with ID = 0x{0:03X}".format(msg.arbitration_id))
     if msg.arbitration_id == 0: # Undefined
         return None
     elif msg.arbitration_id < 256:
