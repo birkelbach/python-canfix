@@ -382,9 +382,10 @@ class NodeSpecific(object):
             self.setMessage(msg)
         else:
             self.controlCode = 0
-            self.data = []
+            self.data = bytearray([])
 
     def setMessage(self, msg):
+        log.debug(str(msg))
         self.sendNode = msg.arbitration_id -1792
         self.destNode = msg.data[0]
         self.controlCode = msg.data[1]
@@ -396,6 +397,7 @@ class NodeSpecific(object):
         msg.data.append(self.controlCode)
         for each in self.data:
             msg.data.append(each)
+        msg.dlc = len(msg.data)
         return msg
 
     msg = property(getMessage, setMessage)
@@ -404,7 +406,7 @@ class NodeSpecific(object):
         """This is a convenience function for setting the data
            for a Node Identification response"""
         self.controlCode = 0x00
-        self.data = [0x01, device, fwrev, model & 0x0000FF,
+        self.data = [0x01, device % 256, fwrev % 256, model & 0x0000FF,
                      (model & 0x00FF00) >> 8, (model & 0xFF0000) >> 16]
 
     def getParameterID(self):

@@ -18,6 +18,7 @@ import unittest
 import canfix
 import can
 
+
 class TestNodeSpecific(unittest.TestCase):
     def setUp(self):
         pass
@@ -94,6 +95,14 @@ class TestNodeSpecific(unittest.TestCase):
         #p.controlCode = 0xFF
         m = p.msg
 
+    def test_NodeSpecific_setNodeIdentification(self):
+        # Test the setNodeIdentification() Function
+        p = canfix.NodeSpecific()
+        p.sendNode = 21
+        p.destNode = 22
+        p.setNodeIdentification(0x23, 0x01, 0x010203)
+        self.assertEqual(p.msg.data, bytearray([22,0x00,0x01,0x23,0x01,0x03,0x02,0x01]))
+        
     # TODO Test default destination node
 
 if __name__ == '__main__':
