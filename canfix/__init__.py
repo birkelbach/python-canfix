@@ -405,8 +405,14 @@ class NodeSpecific(object):
     def setNodeIdentification(self, device, fwrev, model):
         """This is a convenience function for setting the data
            for a Node Identification response"""
+        if device > 255 or device < 0:
+            raise ValueError("Device ID must be between 0 and 255")
+        if fwrev > 255 or fwrev < 0:
+            raise ValueError("Firmware Revision must be between 0 and 255")
+        if model < 0 or model > 0xFFFFFF:
+            raise ValueError("Model must be between 0 and 0xFFFFFF")
         self.controlCode = 0x00
-        self.data = [0x01, device % 256, fwrev % 256, model & 0x0000FF,
+        self.data = [0x01, device, fwrev, model & 0x0000FF,
                      (model & 0x00FF00) >> 8, (model & 0xFF0000) >> 16]
 
     def getParameterID(self):
