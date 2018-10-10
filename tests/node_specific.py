@@ -102,7 +102,21 @@ class TestNodeSpecific(unittest.TestCase):
         p.destNode = 22
         p.setNodeIdentification(0x23, 0x01, 0x010203)
         self.assertEqual(p.msg.data, bytearray([22,0x00,0x01,0x23,0x01,0x03,0x02,0x01]))
-        
+        with self.assertRaises(ValueError):
+              p.setNodeIdentification(256, 0x01, 0x010203)
+        with self.assertRaises(ValueError):
+              p.setNodeIdentification(-1, 0x01, 0x010203)
+        with self.assertRaises(ValueError):
+              p.setNodeIdentification(1, 256, 0x010203)
+        with self.assertRaises(ValueError):
+              p.setNodeIdentification(1, -1, 0x010203)
+        with self.assertRaises(ValueError):
+              p.setNodeIdentification(1, 1, -1)
+        with self.assertRaises(ValueError):
+              p.setNodeIdentification(1, 1, 0x1000000)
+
+
+
     # TODO Test default destination node
 
 if __name__ == '__main__':
