@@ -62,6 +62,9 @@ def sinWave(offset, range, length):
 airData = Node(15, 0x32, 0x0A0B0C, 0x01)
 airData.addParameter("Indicated Airspeed", sinWave(110, 0.5, 4))
 airData.addParameter("Indicated Altitude", sinWave(5500, 20, 8))
+airData.addParameter("Heading", sinWave(180, 20, 7))
+airData.addParameter("Vertical Speed", sinWave(0, 2000, 11))
+airData.addParameter("Yaw Angle", sinWave(0, 5, 5))
 
 ahrs = Node(16, 0x45)
 ahrs.addParameter("Pitch Angle", sinWave(0, 2.0, 12))
@@ -71,6 +74,14 @@ engine = Node(64, 64, 1, 2)
 engine.addParameter("N1 or Engine RPM #1", sinWave(2400, 10, 10))
 engine.addParameter("Manifold Pressure #1", sinWave(23.8, 0.3, 5))
 engine.addParameter("Oil Pressure #1", sinWave(75, 1.0, 5))
+engine.addParameter("Oil Temperature #1", sinWave(100, 15.0, 7))
+engine.addParameter("Coolant Temperature #1", sinWave(75, 5.0, 7))
+engine.addParameter("Fuel Quantity #1", sinWave(15, 5.0, 7))
+engine.addParameter("Fuel Pump Pressure #1", sinWave(15, 5.0, 7))
+engine.addParameter("Cylinder Head Temperature #1", sinWave(85, 50.0, 7))
+engine.addParameter("Exhaust Gas Temperature #1", sinWave(1915, 50.0, 7))
+engine.addParameter("Fuel Flow #1", sinWave(8, 5.0, 7))
+
 
 count = 0
 
