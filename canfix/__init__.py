@@ -68,6 +68,7 @@ class Parameter(object):
         else:
             log.debug("Creating Parameter with default values")
             self.__name = ""
+            self.__identifier = 0
             self.__failure = False
             self.__quality = False
             self.__annunciate = False

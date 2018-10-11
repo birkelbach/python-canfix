@@ -30,6 +30,10 @@ You can also install directly from the source directory by running:
 The only dependency is python-can, which should be automatically installed
 by the above commands.
 
+To initialize and start a vcan0 bus necessary for the socketcan interface to the FIX-Gateway:
+::
+    $ ./startvcan0.sh
+
 API
 ===
 
