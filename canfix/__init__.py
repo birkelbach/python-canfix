@@ -375,7 +375,8 @@ class NodeSpecific(object):
     """Represents a Node Specific Message"""
     codes = ["Node Identification", "Bit Rate Set", "Node ID Set", "Disable Parameter",
              "Enable Parameter", "Node Report", "Node Status", "Update Firmware",
-             "Connection Request", "Node Configuration Set", "Node Configuration Query"]
+             "Connection Request", "Node Configuration Set", "Node Configuration Query",
+             "Parameter Set", "Node Description"]
 
     def __init__(self, msg=None):
         if msg != None:
