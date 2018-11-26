@@ -372,12 +372,15 @@ class TwoWayMsg(object):
         s = self.type + " on channel " + str(self.channel) + ': ' + str(self.data)
         return s
 
+
 class NodeSpecific(object):
-    """Represents a Node Specific Message"""
+    """Represents a generic Node Specific Message"""
     codes = ["Node Identification", "Bit Rate Set", "Node ID Set", "Disable Parameter",
              "Enable Parameter", "Node Report", "Node Status", "Update Firmware",
              "Connection Request", "Node Configuration Set", "Node Configuration Query",
-             "Parameter Set", "Node Description"]
+             "Node Description", "Parameter Set 0", "Parameter Set 32", "Parameter Set 64",
+             "Parameter Set 96", "Parameter Set 128", "Parameter Set 160", "Parameter Set 192",
+             "Parameter Set 224"]
 
     def __init__(self, msg=None):
         if msg != None:
@@ -389,33 +392,20 @@ class NodeSpecific(object):
     def setMessage(self, msg):
         log.debug(str(msg))
         self.sendNode = msg.arbitration_id -1792
-        self.destNode = msg.data[0]
-        self.controlCode = msg.data[1]
-        self.data = msg.data[2:]
+        self.controlCode = msg.data[0]
+        #self.destNode = msg.data[1]
+        self.data = msg.data[1:]
 
     def getMessage(self):
         msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
-        msg.data.append(self.destNode)
         msg.data.append(self.controlCode)
+        #msg.data.append(self.destNode)
         for each in self.data:
             msg.data.append(each)
         msg.dlc = len(msg.data)
         return msg
 
     msg = property(getMessage, setMessage)
-
-    def setNodeIdentification(self, device, fwrev, model):
-        """This is a convenience function for setting the data
-           for a Node Identification response"""
-        if device > 255 or device < 0:
-            raise ValueError("Device ID must be between 0 and 255")
-        if fwrev > 255 or fwrev < 0:
-            raise ValueError("Firmware Revision must be between 0 and 255")
-        if model < 0 or model > 0xFFFFFF:
-            raise ValueError("Model must be between 0 and 0xFFFFFF")
-        self.controlCode = 0x00
-        self.data = [0x01, device, fwrev, model & 0x0000FF,
-                     (model & 0x00FF00) >> 8, (model & 0xFF0000) >> 16]
 
     def getParameterID(self):
         """This is a convenience function that assembles and returns
@@ -435,6 +425,95 @@ class NodeSpecific(object):
             s = s + str(self.controlCode)
         s = s + ": " + str(self.data)
         return s
+
+
+class NodeIdentification(NodeSpecific):
+    def __init__(self, msg=None, device=None, fwrev=None, model=None):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x00
+            self.device = device if device != None else 0x00
+            self.fwrev = fwrev if fwrev != None else 0x00
+            self.model = model if model != None else 0x00
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id -1792
+        self.controlCode = msg.data[0]
+        #TODO Raise error if controlCode is not 0x00
+        self.destNode = msg.data[1]
+        self.device = msg.data[3]
+        self.fwrev = msg.data[4]
+        self.model = msg.data[5] + msg.data[6]<<8 + msg.data[7]<<16
+
+    def getMessage(self):
+        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg.data = self.data
+        msg.dlc = len(msg.data)
+        return msg
+
+    msg = property(getMessage, setMessage)
+
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.destNode)
+        data.append(0x01) # CAN-FIX Specification Revision
+        data.append(self.device)
+        data.append(self.fwrev)
+        data.extend([model & 0x0000FF, (model & 0x00FF00) >> 8, (model & 0xFF0000) >> 16])
+        return data
+
+    data = property(getData)
+
+    def setDevice(self, device):
+        if device > 255 or device < 0:
+            raise ValueError("Device ID must be between 0 and 255")
+        else:
+            self.device = device
+
+    def getDevice(self):
+        return self.device
+
+    device = property(getDevice, setDevice)
+
+    def setFwrev(self, fwrev):
+        if fwrev > 255 or fwrev < 0:
+            raise ValueError("Firmware Revision must be between 0 and 255")
+        else:
+            self.fwrev = fwrev
+
+    def getFwrev(self):
+        return self.fwrev
+
+    fwrev = property(getFwrev, setFwrev)
+
+    def setModel(self, model):
+        if model < 0 or model > 0xFFFFFF:
+            raise ValueError("Model must be between 0 and 0xFFFFFF")
+        else:
+            self.model = model
+
+    def getModel(self):
+        return self.model
+
+    model = property(getModel, setModel)
+
+    def __str__(self):
+        s = '[' + str(self.sendNode) + ']'
+        s = s + "->[" + str(self.destNode) + '] '
+        try:
+            s = s + self.codes[self.controlCode]
+        except IndexError:
+            if self.controlCode < 128:
+                s = s + "Reserved NSM "
+            else:
+                s = s + "User Defined NSM "
+            s = s + str(self.controlCode)
+        s = s + ": " + str(self.data)
+        return s
+
 
 def getTypeSize(datatype):
     """Return the size of the CAN-FIX datatype in bytes"""

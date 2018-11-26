@@ -29,60 +29,52 @@ class TestNodeSpecific(unittest.TestCase):
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
-        self.assertEqual(p.destNode,0x01)
-        self.assertEqual(p.controlCode, 0x02)
-        self.assertEqual(p.data, bytearray([0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
+        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.data, bytearray([0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
 
-        self.assertEqual(p.data, bytearray([0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
         d = bytearray([0x01, 0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80])
         msg = can.Message(extended_id=False, arbitration_id=0x7FF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0xFF)
-        self.assertEqual(p.destNode,0x01)
-        self.assertEqual(p.controlCode, 0x02)
-        self.assertEqual(p.data, bytearray([0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
+        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.data, bytearray([0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
 
     def test_NodeSpecificMessageNoData(self):
-        d = bytearray([0x05, 0x06])
+        d = bytearray([0x05])
         msg = can.Message(extended_id=False, arbitration_id=0x700, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
-        self.assertEqual(p.destNode,0x05)
-        self.assertEqual(p.controlCode, 0x06)
+        self.assertEqual(p.controlCode, 0x05)
 
     def test_NodeSpecificCANMessage(self):
         p = canfix.NodeSpecific()
         p.sendNode = 23
-        p.destNode = 1
         p.controlCode = 0xFF
         m = p.msg
         self.assertEqual(m.arbitration_id, 0x700 + 23)
-        self.assertEqual(m.data, bytearray([0x01, 0xFF]))
+        self.assertEqual(m.data, bytearray([0xFF]))
 
     def test_NodeSpecificCANMessageWithData(self):
         p = canfix.NodeSpecific()
         p.sendNode = 23
-        p.destNode = 1
         p.controlCode = 0xFF
-        p.data = bytearray([0x02, 0x03, 0x04, 0x05, 0x06, 0x07])
+        p.data = bytearray([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07])
         m = p.msg
         self.assertEqual(m.arbitration_id, 0x700 + 23)
-        self.assertEqual(m.data, bytearray([0x01, 0xFF, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
+        self.assertEqual(m.data, bytearray([0xFF, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
 
-    def test_NodeSpecificCANMessageNodeNotSet1(self):
-        p = canfix.NodeSpecific()
-        p.sendNode = 23
-        #p.destNode = 1
-        p.controlCode = 0xFF
-        with self.assertRaises(AttributeError):
-            m = p.msg
+    # def test_NodeSpecificCANMessageNodeNotSet1(self):
+    #     p = canfix.NodeSpecific()
+    #     p.sendNode = 23
+    #     p.controlCode = 0xFF
+    #     with self.assertRaises(AttributeError):
+    #         m = p.msg
 
     def test_NodeSpecificCANMessageNodeNotSet2(self):
         p = canfix.NodeSpecific()
         #p.sendNode = 23
-        p.destNode = 1
         p.controlCode = 0xFF
         with self.assertRaises(AttributeError):
             m = p.msg
@@ -95,25 +87,25 @@ class TestNodeSpecific(unittest.TestCase):
         #p.controlCode = 0xFF
         m = p.msg
 
-    def test_NodeSpecific_setNodeIdentification(self):
-        # Test the setNodeIdentification() Function
-        p = canfix.NodeSpecific()
-        p.sendNode = 21
-        p.destNode = 22
-        p.setNodeIdentification(0x23, 0x01, 0x010203)
-        self.assertEqual(p.msg.data, bytearray([22,0x00,0x01,0x23,0x01,0x03,0x02,0x01]))
-        with self.assertRaises(ValueError):
-              p.setNodeIdentification(256, 0x01, 0x010203)
-        with self.assertRaises(ValueError):
-              p.setNodeIdentification(-1, 0x01, 0x010203)
-        with self.assertRaises(ValueError):
-              p.setNodeIdentification(1, 256, 0x010203)
-        with self.assertRaises(ValueError):
-              p.setNodeIdentification(1, -1, 0x010203)
-        with self.assertRaises(ValueError):
-              p.setNodeIdentification(1, 1, -1)
-        with self.assertRaises(ValueError):
-              p.setNodeIdentification(1, 1, 0x1000000)
+    # def test_NodeSpecific_setNodeIdentification(self):
+    #     # Test the setNodeIdentification() Function
+    #     p = canfix.NodeSpecific()
+    #     p.sendNode = 21
+    #     p.destNode = 22
+    #     p.setNodeIdentification(0x23, 0x01, 0x010203)
+    #     self.assertEqual(p.msg.data, bytearray([22,0x00,0x01,0x23,0x01,0x03,0x02,0x01]))
+    #     with self.assertRaises(ValueError):
+    #           p.setNodeIdentification(256, 0x01, 0x010203)
+    #     with self.assertRaises(ValueError):
+    #           p.setNodeIdentification(-1, 0x01, 0x010203)
+    #     with self.assertRaises(ValueError):
+    #           p.setNodeIdentification(1, 256, 0x010203)
+    #     with self.assertRaises(ValueError):
+    #           p.setNodeIdentification(1, -1, 0x010203)
+    #     with self.assertRaises(ValueError):
+    #           p.setNodeIdentification(1, 1, -1)
+    #     with self.assertRaises(ValueError):
+    #           p.setNodeIdentification(1, 1, 0x1000000)
 
 
 

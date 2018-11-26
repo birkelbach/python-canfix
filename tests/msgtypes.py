@@ -92,8 +92,7 @@ class TestParameter(unittest.TestCase):
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
-        self.assertEqual(p.destNode,0x01)
-        self.assertEqual(p.controlCode, 0x02)
+        self.assertEqual(p.controlCode, 0x01)
 
     def test_LastNodeSpecificMessage(self):
         d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
@@ -101,8 +100,7 @@ class TestParameter(unittest.TestCase):
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0xFF)
-        self.assertEqual(p.destNode,0x01)
-        self.assertEqual(p.controlCode, 0x02)
+        self.assertEqual(p.controlCode, 0x01)
 
 if __name__ == '__main__':
     unittest.main()

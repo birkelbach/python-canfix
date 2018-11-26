@@ -16,7 +16,7 @@ https://github.com/birkelbach/python-canfix
 Installation
 ============
 
-Install ``can`` with ``pip``:
+Install ``canfix`` with ``pip``:
 ::
 
     $ pip install python-canfix
