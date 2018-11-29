@@ -134,14 +134,14 @@ class Parameter(object):
         if isinstance(meta, int):
             self.function &= 0x0F
             self.function |= meta << 4
-            self.__meta = parameters[self.__msg.arbitration_id].auxdata[meta]
+            self.__meta = parameters[self.__msg.arbitration_id].metadata[meta]
         elif isinstance(meta, str):
             p = parameters[self.__msg.arbitration_id]
-            for each in p.auxdata:
-                if p.auxdata[each].upper() == meta.upper():
+            for each in p.metadata:
+                if p.metadata[each].upper() == meta.upper():
                     self.function &= 0x0F
                     self.function |= each << 4
-                    self.__meta = p.auxdata[each] # Get's the case right
+                    self.__meta = p.metadata[each] # Get's the case right
         else:
             self.__meta = None
 
@@ -173,7 +173,7 @@ class Parameter(object):
             self.annunciate = False
         self.value = self.unpack()
         try:
-            self.meta = p.auxdata[self.function>>4]
+            self.meta = p.metadata[self.function>>4]
         except KeyError:
             self.meta = None
 

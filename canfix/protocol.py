@@ -40,7 +40,7 @@ class ParameterDef():
         self.max = None
         self.index = None
         self.format = None
-        self.auxdata = {}
+        self.metadata = {}
         self.remarks = []
 
     def __str__(self):
@@ -63,10 +63,10 @@ class ParameterDef():
 
         if self.index:
             s = s + "  Index:     %s\n" % self.index
-        if self.auxdata:
+        if self.metadata:
             s = s + "  Auxilliary Data:\n"
-            for each in self.auxdata:
-                s = s + "   0x%02X - %s\n" % (each, self.auxdata[each])
+            for each in self.metadata:
+                s = s + "   0x%02X - %s\n" % (each, self.metadata[each])
         if self.remarks:
             s = s + "  Remarks:\n"
             for each in self.remarks:
@@ -125,7 +125,7 @@ def __add_parameter(element):
 
     l = element.findall('aux')
     for each in l:
-        p.auxdata[int(each.attrib['id'])] = each.text
+        p.metadata[int(each.attrib['id'])] = each.text
     l = element.findall('remarks')
 
     for each in l:
