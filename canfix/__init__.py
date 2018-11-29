@@ -26,6 +26,12 @@ from .protocol import parameters
 
 log = logging.getLogger("canfix")
 
+MSG_REQUEST =  0x01
+MSG_RESPONSE = 0x02
+
+class MsgSizeError(Exception):
+    pass
+
 class NodeAlarm(object):
     """Represents a Node Alarm"""
     def __init__(self, msg=None):
@@ -57,6 +63,7 @@ class NodeAlarm(object):
         s = "[" + str(self.node) + "] Node Alarm " + str(self.alarm) + " Data "
         s += ''.join(format(x, '02X') for x in self.data)
         return s
+
 
 class Parameter(object):
     """Represents a normal parameter update message frame"""
@@ -342,6 +349,7 @@ class Parameter(object):
                 s = s + ' [ANNUNC]'
         return s
 
+
 class TwoWayMsg(object):
     """Represents 2 Way communication channel data"""
     def __init__(self, msg=None):
@@ -413,17 +421,20 @@ class NodeSpecific(object):
         return (data[1] << 8) + data[0]
 
     def __str__(self):
-        s = '[' + str(self.sendNode) + ']'
-        s = s + "->[" + str(self.destNode) + '] '
         try:
-            s = s + self.codes[self.controlCode]
+            s = self.codes[self.controlCode]
         except IndexError:
             if self.controlCode < 128:
-                s = s + "Reserved NSM "
+                s = "Reserved NSM "
             else:
-                s = s + "User Defined NSM "
+                s = "User Defined NSM "
             s = s + str(self.controlCode)
-        s = s + ": " + str(self.data)
+        s += ' [' + str(self.sendNode) + ']'
+        #s += "->[" + str(self.destNode) + '] '
+        s += ":"
+        for each in self.data:
+            s += " 0x{:02x}".format(each)
+            #s += hex(each)
         return s
 
 
@@ -433,9 +444,12 @@ class NodeIdentification(NodeSpecific):
             self.setMessage(msg)
         else:
             self.controlCode = 0x00
-            self.device = device if device != None else 0x00
-            self.fwrev = fwrev if fwrev != None else 0x00
-            self.model = model if model != None else 0x00
+            self.msgType = MSG_REQUEST
+            self.sendNode = None
+            self.destNode = None
+            if device: self.device = device
+            if fwrev: self.fwrev = fwrev
+            if model: self.model = model
 
     def setMessage(self, msg):
         log.debug(str(msg))
@@ -443,9 +457,15 @@ class NodeIdentification(NodeSpecific):
         self.controlCode = msg.data[0]
         #TODO Raise error if controlCode is not 0x00
         self.destNode = msg.data[1]
-        self.device = msg.data[3]
-        self.fwrev = msg.data[4]
-        self.model = msg.data[5] + msg.data[6]<<8 + msg.data[7]<<16
+        if msg.dlc == 2:
+            self.msgType = MSG_REQUEST
+        elif msg.dlc == 8:
+            self.msgType = MSG_RESPONSE
+            self.device = msg.data[3]
+            self.fwrev = msg.data[4]
+            self.model = msg.data[5] + (msg.data[6]<<8) + (msg.data[7]<<16)
+        else:
+            raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
         msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
@@ -459,10 +479,12 @@ class NodeIdentification(NodeSpecific):
         data = bytearray([])
         data.append(self.controlCode)
         data.append(self.destNode)
-        data.append(0x01) # CAN-FIX Specification Revision
-        data.append(self.device)
-        data.append(self.fwrev)
-        data.extend([model & 0x0000FF, (model & 0x00FF00) >> 8, (model & 0xFF0000) >> 16])
+        if self.msgType == MSG_RESPONSE:
+            data.append(0x01) # CAN-FIX Specification Revision
+            data.append(self.device)
+            data.append(self.fwrev)
+            data.extend([self.model & 0x0000FF, (self.model & 0x00FF00) >> 8, (self.model & 0xFF0000) >> 16])
+
         return data
 
     data = property(getData)
@@ -471,10 +493,11 @@ class NodeIdentification(NodeSpecific):
         if device > 255 or device < 0:
             raise ValueError("Device ID must be between 0 and 255")
         else:
-            self.device = device
+            self.__device = device
+            self.msgType = MSG_RESPONSE
 
     def getDevice(self):
-        return self.device
+        return self.__device
 
     device = property(getDevice, setDevice)
 
@@ -482,10 +505,12 @@ class NodeIdentification(NodeSpecific):
         if fwrev > 255 or fwrev < 0:
             raise ValueError("Firmware Revision must be between 0 and 255")
         else:
-            self.fwrev = fwrev
+            self.__fwrev = fwrev
+            self.msgType = MSG_RESPONSE
+
 
     def getFwrev(self):
-        return self.fwrev
+        return self.__fwrev
 
     fwrev = property(getFwrev, setFwrev)
 
@@ -493,25 +518,28 @@ class NodeIdentification(NodeSpecific):
         if model < 0 or model > 0xFFFFFF:
             raise ValueError("Model must be between 0 and 0xFFFFFF")
         else:
-            self.model = model
+            self.__model = model
+            self.msgType = MSG_RESPONSE
 
     def getModel(self):
-        return self.model
+        return self.__model
 
     model = property(getModel, setModel)
 
     def __str__(self):
-        s = '[' + str(self.sendNode) + ']'
-        s = s + "->[" + str(self.destNode) + '] '
         try:
-            s = s + self.codes[self.controlCode]
+            s = self.codes[self.controlCode]
         except IndexError:
             if self.controlCode < 128:
-                s = s + "Reserved NSM "
+                s = "Reserved NSM "
             else:
-                s = s + "User Defined NSM "
-            s = s + str(self.controlCode)
-        s = s + ": " + str(self.data)
+                s = "User Defined NSM "
+            s += str(self.controlCode)
+        s += " [" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "]"
+        s += " device={}".format(self.device)
+        s += " fwrev={}".format(self.fwrev)
+        s += " model={}".format(self.model)
         return s
 
 
@@ -597,6 +625,9 @@ def parseMessage(msg):
     elif msg.arbitration_id < 1792:
         return TwoWayMsg(msg)
     elif msg.arbitration_id < 2048:
+        if msg.data[0] == 0x00:
+            return NodeIdentification(msg)
+        # Default we just return a generic NodeSpecific Message
         return NodeSpecific(msg)
     else:
         return None

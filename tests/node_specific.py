@@ -107,9 +107,73 @@ class TestNodeSpecific(unittest.TestCase):
     #     with self.assertRaises(ValueError):
     #           p.setNodeIdentification(1, 1, 0x1000000)
 
+class TestNodeIdentification(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_NodeIdentificationMessageRequest(self):
+        d = bytearray([0x00, 0x02])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.NodeIdentification)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x00)
+        self.assertEqual(p.destNode, 0x02)
+        self.assertEqual(p.msgType, canfix.MSG_REQUEST)
+
+    def test_NodeIdentificationMessageResponse(self):
+        d = bytearray([0x00, 0x02, 0x01, 0x40, 0x50, 0x60, 0x70, 0x80])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.NodeIdentification)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x00)
+        self.assertEqual(p.destNode, 0x02)
+        self.assertEqual(p.device, 0x40)
+        self.assertEqual(p.fwrev, 0x50)
+        self.assertEqual(p.model, 8417376)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+
+    def test_NodeIdentificationMessageSizeError(self):
+        d = bytearray([0x00, 0x02, 0x01, 0x40, 0x50, 0x60, 0x70])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        with self.assertRaises(canfix.MsgSizeError):
+            p = canfix.parseMessage(msg)
+
+    def testNodeIdentificationBuildRequest(self):
+        n = canfix.NodeIdentification(device=12, fwrev=22, model=76543)
+        n.sendNode = 0x01
+        n.destNode = 0x02
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.data, bytearray([0x00, 0x02, 0x01, 12, 22, 0xFF, 0x2A, 0x01]))
+        self.assertEqual(n.msgType, canfix.MSG_RESPONSE)
+
+    def testNodeIdentificationBuildResponse(self):
+        n = canfix.NodeIdentification()
+        n.sendNode = 0x01
+        n.destNode = 0x02
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.data, bytearray([0x00, 0x02]))
+        self.assertEqual(n.msgType, canfix.MSG_REQUEST)
+
+    def testNodeIdentificationBoundsChecks(self):
+        with self.assertRaises(ValueError):
+              n = canfix.NodeIdentification(device=256,fwrev= 0x01, model=0x010203)
+        with self.assertRaises(ValueError):
+              n = canfix.NodeIdentification(device=-1, fwrev=0x01, model=0x010203)
+        with self.assertRaises(ValueError):
+              n = canfix.NodeIdentification(device=1, fwrev=256, model=0x010203)
+        with self.assertRaises(ValueError):
+              n = canfix.NodeIdentification(device=1, fwrev=-1, model=0x010203)
+        with self.assertRaises(ValueError):
+              n = canfix.NodeIdentification(device=1, fwrev=1, model=-1)
+        with self.assertRaises(ValueError):
+              n = canfix.NodeIdentification(device=1, fwrev=1, model=0x1000000)
 
 
     # TODO Test default destination node
+    # TODO Check STR outputs
+
 
 if __name__ == '__main__':
     unittest.main()
