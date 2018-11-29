@@ -87,20 +87,20 @@ class TestParameter(unittest.TestCase):
         self.assertEqual(p.type, "Response")
 
     def test_FirstNodeSpecificMessage(self):
-        d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
+        d = bytearray([0x61, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
         msg = can.Message(extended_id=False, arbitration_id=0x700, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
-        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.controlCode, 0x61)
 
     def test_LastNodeSpecificMessage(self):
-        d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
+        d = bytearray([0x61, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
         msg = can.Message(extended_id=False, arbitration_id=0x7FF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0xFF)
-        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.controlCode, 0x61)
 
 if __name__ == '__main__':
     unittest.main()

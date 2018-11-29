@@ -28,6 +28,8 @@ log = logging.getLogger("canfix")
 
 MSG_REQUEST =  0x01
 MSG_RESPONSE = 0x02
+MSG_SUCCESS =  0x00
+MSG_FAIL =     0xFF
 
 class MsgSizeError(Exception):
     pass
@@ -421,17 +423,15 @@ class NodeSpecific(object):
         return (data[1] << 8) + data[0]
 
     def __str__(self):
+        s = "[{}] ".format(str(self.sendNode))
         try:
-            s = self.codes[self.controlCode]
+            s += self.codes[self.controlCode]
         except IndexError:
             if self.controlCode < 128:
-                s = "Reserved NSM "
+                s += "Reserved NSM "
             else:
-                s = "User Defined NSM "
-            s = s + str(self.controlCode)
-        s += ' [' + str(self.sendNode) + ']'
-        #s += "->[" + str(self.destNode) + '] '
-        s += ":"
+                s += "User Defined NSM "
+            s += str(self.controlCode)
         for each in self.data:
             s += " 0x{:02x}".format(each)
             #s += hex(each)
@@ -447,15 +447,15 @@ class NodeIdentification(NodeSpecific):
             self.msgType = MSG_REQUEST
             self.sendNode = None
             self.destNode = None
-            if device: self.device = device
-            if fwrev: self.fwrev = fwrev
-            if model: self.model = model
+            if device is not None: self.device = device
+            if fwrev is not None: self.fwrev = fwrev
+            if model is not None: self.model = model
 
     def setMessage(self, msg):
         log.debug(str(msg))
         self.sendNode = msg.arbitration_id -1792
         self.controlCode = msg.data[0]
-        #TODO Raise error if controlCode is not 0x00
+        assert self.controlCode == 0x00
         self.destNode = msg.data[1]
         if msg.dlc == 2:
             self.msgType = MSG_REQUEST
@@ -527,19 +527,97 @@ class NodeIdentification(NodeSpecific):
     model = property(getModel, setModel)
 
     def __str__(self):
-        try:
-            s = self.codes[self.controlCode]
-        except IndexError:
-            if self.controlCode < 128:
-                s = "Reserved NSM "
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
+        s += ": device={}".format(self.device)
+        s += ", fwrev={}".format(self.fwrev)
+        s += ", model={}".format(self.model)
+        return s
+
+class BitRateSet(NodeSpecific):
+    def __init__(self, msg=None, bitrate=None):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x01
+            self.msgType = MSG_RESPONSE
+            self.status = MSG_SUCCESS
+            self.sendNode = None
+            self.destNode = None
+            if bitrate is not None: self.bitrate = bitrate
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id -1792
+        self.controlCode = msg.data[0]
+        assert self.controlCode == 0x01
+        self.destNode = msg.data[1]
+
+        if msg.dlc == 2:
+            self.msgType = MSG_RESPONSE
+            self.status = MSG_SUCCESS
+        elif msg.dlc == 3:
+            if msg.data[2] == 0xFF:
+                self.msgType = MSG_RESPONSE
+                self.status = MSG_FAIL
             else:
-                s = "User Defined NSM "
-            s += str(self.controlCode)
-        s += " [" + str(self.sendNode) + "]"
-        s += "->[" + str(self.destNode) + "]"
-        s += " device={}".format(self.device)
-        s += " fwrev={}".format(self.fwrev)
-        s += " model={}".format(self.model)
+                self.msgType = MSG_REQUEST
+                self.bitrate = msg.data[2]
+        else:
+            raise MsgSizeError("Message size is incorrect")
+
+    def getMessage(self):
+        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg.data = self.data
+        msg.dlc = len(msg.data)
+        return msg
+
+    msg = property(getMessage, setMessage)
+
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.destNode)
+        if self.msgType == MSG_RESPONSE and self.status == MSG_FAIL:
+            data.append(0xFF)
+        elif self.msgType == MSG_REQUEST:
+            data.append(self.bitrate)
+        return data
+
+    data = property(getData)
+
+    bitrates = {125:1, 250:2, 500:3, 1000:4}
+
+    def setBitRate(self, bitrate):
+        if bitrate >= 1 and bitrate <= 4:
+            self.__bitrate = bitrate
+        elif bitrate in self.bitrates:
+            self.__bitrate = self.bitrates[bitrate]
+        else:
+            raise ValueError("Invalid Bit Rate Given")
+        self.msgType = MSG_REQUEST
+
+    def getBitRate(self):
+        return self.__bitrate
+
+    bitrate = property(getBitRate, setBitRate)
+
+    def __str__(self):
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
+        if self.msgType == MSG_REQUEST:
+            for each in self.bitrates:
+                if self.bitrates[each] == self.bitrate:
+                    b = each
+                    break
+            s += ": request bitrate={}kbps".format(b)
+        else:
+            if self.status == MSG_SUCCESS:
+                s += ": Success Response"
+            elif self.status == MSG_FAIL:
+                s += ": Failure Response"
         return s
 
 
@@ -627,6 +705,8 @@ def parseMessage(msg):
     elif msg.arbitration_id < 2048:
         if msg.data[0] == 0x00:
             return NodeIdentification(msg)
+        elif msg.data[0] == 0x01:
+            return BitRateSet(msg)
         # Default we just return a generic NodeSpecific Message
         return NodeSpecific(msg)
     else:

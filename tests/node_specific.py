@@ -24,20 +24,20 @@ class TestNodeSpecific(unittest.TestCase):
         pass
 
     def test_NodeSpecificMessage(self):
-        d = bytearray([0x01, 0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80])
+        d = bytearray([0x61, 0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80])
         msg = can.Message(extended_id=False, arbitration_id=0x700, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
-        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.controlCode, 0x61)
         self.assertEqual(p.data, bytearray([0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
 
-        d = bytearray([0x01, 0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80])
+        d = bytearray([0x61, 0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80])
         msg = can.Message(extended_id=False, arbitration_id=0x7FF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0xFF)
-        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.controlCode, 0x61)
         self.assertEqual(p.data, bytearray([0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
 
     def test_NodeSpecificMessageNoData(self):
@@ -140,7 +140,7 @@ class TestNodeIdentification(unittest.TestCase):
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
 
-    def testNodeIdentificationBuildRequest(self):
+    def testNodeIdentificationBuildResponse(self):
         n = canfix.NodeIdentification(device=12, fwrev=22, model=76543)
         n.sendNode = 0x01
         n.destNode = 0x02
@@ -148,7 +148,7 @@ class TestNodeIdentification(unittest.TestCase):
         self.assertEqual(n.msg.data, bytearray([0x00, 0x02, 0x01, 12, 22, 0xFF, 0x2A, 0x01]))
         self.assertEqual(n.msgType, canfix.MSG_RESPONSE)
 
-    def testNodeIdentificationBuildResponse(self):
+    def testNodeIdentificationBuildRequest(self):
         n = canfix.NodeIdentification()
         n.sendNode = 0x01
         n.destNode = 0x02
@@ -170,9 +170,90 @@ class TestNodeIdentification(unittest.TestCase):
         with self.assertRaises(ValueError):
               n = canfix.NodeIdentification(device=1, fwrev=1, model=0x1000000)
 
+    def testBitRateSetMessageRequest(self):
+        d = bytearray([0x01, 0x02, 0x01])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.BitRateSet)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.destNode, 0x02)
+        self.assertEqual(p.msgType, canfix.MSG_REQUEST)
+        self.assertEqual(p.bitrate, 1)
+
+    def testBitRateSetMessageResponse(self):
+        d = bytearray([0x01, 0x02])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.BitRateSet)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.destNode, 0x02)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.status, canfix.MSG_SUCCESS)
+
+        d = bytearray([0x01, 0x02, 0xFF])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.BitRateSet)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x01)
+        self.assertEqual(p.destNode, 0x02)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.status, canfix.MSG_FAIL)
+
+    def testBitRateSetBuildRequest(self):
+        n = canfix.BitRateSet(bitrate=1)
+        n.sendNode = 0x01
+        n.destNode = 0x02
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0x01]))
+        self.assertEqual(n.msgType, canfix.MSG_REQUEST)
+
+    def testBitRateSetBuildResponse(self):
+        n = canfix.BitRateSet()
+        n.sendNode = 0x01
+        n.destNode = 0x02
+        n.status = canfix.MSG_SUCCESS
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.data, bytearray([0x01, 0x02]))
+        self.assertEqual(n.msgType, canfix.MSG_RESPONSE)
+
+        n.status = canfix.MSG_FAIL
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0xFF]))
+        self.assertEqual(n.msgType, canfix.MSG_RESPONSE)
+
+    def testBitRateSetBitRates(self):
+        n = canfix.BitRateSet(bitrate=125)
+        n.sendNode = 0x01
+        n.destNode = 0x02
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0x01]))
+        self.assertEqual(n.msgType, canfix.MSG_REQUEST)
+        n.bitrate = 250
+        self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0x02]))
+        n.bitrate = 500
+        self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0x03]))
+        n.bitrate = 1000
+        self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0x04]))
+
+    def testBitRateSetBitRatesFail(self):
+        with self.assertRaises(ValueError):
+            n = canfix.BitRateSet(bitrate=0)
+        with self.assertRaises(ValueError):
+            n = canfix.BitRateSet(bitrate=5)
+        with self.assertRaises(ValueError):
+            n = canfix.BitRateSet(bitrate=12)
+        with self.assertRaises(ValueError):
+            n = canfix.BitRateSet(bitrate=1200)
+
+
+
+
 
     # TODO Test default destination node
-    # TODO Check STR outputs
+    # TODO Check STR outputs for requests and responses
 
 
 if __name__ == '__main__':
