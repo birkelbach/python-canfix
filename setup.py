@@ -11,7 +11,7 @@ setup(
     license='GNU General Public License Version 2',
     url='https://github.com/birkelbach/python-canfix',
     packages=['canfix'],
-    package_data = {'canfix':['canfix.xml']},
+    package_data = {'canfix':['canfix.json']},
     install_requires = ['python-can',],
     test_suite = 'tests',
 )

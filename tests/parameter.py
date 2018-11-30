@@ -31,21 +31,21 @@ class TestParameterSimpleReceiver(unittest.TestCase):
         self.assertEqual(p.name, "Flap Control Switches #1")
 
     def test_ParameterEncoder(self):
-        d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00])
+        d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
         msg = can.Message(arbitration_id=0x11B, extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Encoder Input (High Priority) #2")
-        self.assertEqual(p.value, 0)
+        self.assertEqual(p.value, [0, 0, [False]*8])
 
-        d = bytearray([0x00, 0x00, 0x00, 0xFB, 0xFF])
+        d = bytearray([0x00, 0x00, 0x00, 0xFB, 0xFF, 0x00, 0x00, 0x00])
         msg.data = d
         p = canfix.parseMessage(msg)
-        self.assertEqual(p.value, -5)
+        self.assertEqual(p.value, [-5, 0, [False]*8])
 
-        d = bytearray([0x00, 0x00, 0x00, 0x05, 0x00])
+        d = bytearray([0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00])
         msg.data = d
         p = canfix.parseMessage(msg)
-        self.assertEqual(p.value, 5)
+        self.assertEqual(p.value, [5, 0, [False]*8])
 
     def test_ParameterPitchControlPosition(self):
         d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00])
@@ -128,11 +128,11 @@ class TestParameterSimpleReceiver(unittest.TestCase):
         self.assertEqual(p.value, "727WB")
 
     def test_ParameterTime(self):
-        d = bytearray([0x02, 0x00, 0x00, 13, 23, 59])
+        d = bytearray([0x02, 0x00, 0x00, 13, 23, 59, 0x2C, 0x02])
         msg = can.Message(arbitration_id=0x580, extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Time")
-        self.assertEqual(p.value, [13, 23, 59])
+        self.assertEqual(p.value, [13, 23, 59, 556])
 
     def test_ParameterDate(self):
         d = bytearray([0x02, 0x00, 0x00, 0xE0, 0x07, 7, 27])
@@ -287,12 +287,12 @@ class TestParameterSimpleSender(unittest.TestCase):
         p = canfix.Parameter()
         p.node = 0x02
         p.name = "Time"
-        p.value = [13, 14, 15]
+        p.value = [13, 14, 15, 556]
         msg = p.msg
 
         self.assertEqual(msg.arbitration_id, 0x580)
-        self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x00, 13, 14, 15]))
-        self.assertEqual(msg.dlc,6)
+        self.assertEqual(msg.data, bytearray([0x02, 0x00, 0x00, 13, 14, 15, 0x2C, 0x02]))
+        self.assertEqual(msg.dlc,8)
 
     def test_ParameterDate(self):
         p = canfix.Parameter()
@@ -312,7 +312,7 @@ class TestParameterSimpleSender(unittest.TestCase):
         p.identifier = 0x40B
         self.assertEqual(p.name, "Wind Direction")
         p.identifier = 0x38B
-        self.assertEqual(p.name, "Fuel Pump Status")
+        self.assertEqual(p.name, "Fuel Pump Status #1")
         p.identifier = 0x281
         self.assertEqual(p.name, "Cabin Altitude")
         p.identifier = 0x103
@@ -336,7 +336,7 @@ class TestParameterSimpleSender(unittest.TestCase):
     def test_ParameterFlags(self):
         p = canfix.Parameter()
         p.node = 5
-        p.identifier = 0x221
+        p.identifier = 0x220
         p.value = 75.6
         p.annunciate = True
         p.quality = False

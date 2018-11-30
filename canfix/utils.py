@@ -83,7 +83,6 @@ def setValue(datatype, value, multiplier=1):
         else:
             x = struct.pack(table[datatype], value / multiplier)
         return x
-        #return [ord(y) for y in x] # Convert packed string into ints
     except KeyError:
         if "CHAR" in datatype:
             return [ord(value)]

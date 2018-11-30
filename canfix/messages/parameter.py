@@ -18,6 +18,9 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+import sys
+if sys.version_info[0] >= 3:
+    unicode = str
 import can
 import time
 from ..protocol import parameters
@@ -131,11 +134,16 @@ class Parameter(object):
     annunciate = property(getAnnunciate, setAnnunciate)
 
     def setMeta(self, meta):
+        if isinstance(meta, str):
+            try:
+                meta = unicode(meta,"utf-8") # Can't really do this in Python3
+            except:
+                pass
         if isinstance(meta, int):
             self.function &= 0x0F
             self.function |= meta << 4
             self.__meta = parameters[self.__msg.arbitration_id].metadata[meta]
-        elif isinstance(meta, str):
+        elif isinstance(meta, unicode):
             p = parameters[self.__msg.arbitration_id]
             for each in p.metadata:
                 if p.metadata[each].upper() == meta.upper():
@@ -172,10 +180,12 @@ class Parameter(object):
         else:
             self.annunciate = False
         self.value = self.unpack()
-        try:
-            self.meta = p.metadata[self.function>>4]
-        except KeyError:
-            self.meta = None
+        x = self.function>>4
+        self.meta = p.metadata[x] if x in p.metadata else None
+        # try:
+        #     self.meta = p.metadata[self.function>>4]
+        # except KeyError:
+        #     self.meta = None
 
         self.updated = time.time()
 
@@ -219,13 +229,27 @@ class Parameter(object):
     def unpack(self):
         # TODO: Make sure that self.data is the right size.  Should log error
         #       and set the failure bit.
-        if self.type == "UINT, USHORT[2]": #Unusual case of the date
+        if self.type == "UINT,USHORT[2]": #Unusual case of the date
             x = []
-            x.append(getValue("UINT", self.data[0:2],1))
+            x.append(getValue("UINT", self.data[0:2], 1))
             x.append(getValue("USHORT", self.data[2:3], 1))
             x.append(getValue("USHORT", self.data[3:4], 1))
             for each in x:
                 if each==None: self.__failure=True
+        elif self.type == "USHORT[3],UINT": #Unusual case of the time
+            x = []
+            x.append(getValue("USHORT", self.data[0:1], 1))
+            x.append(getValue("USHORT", self.data[1:2], 1))
+            x.append(getValue("USHORT", self.data[2:3], 1))
+            x.append(getValue("UINT", self.data[3:7], 1))
+            for each in x:
+                if each==None: self.__failure=True
+        elif self.type == "INT[2],BYTE": #Unusual case of encoder
+            x = []
+            x.append(getValue("INT", self.data[0:2], 1))
+            x.append(getValue("INT", self.data[2:4], 1))
+            x.append(getValue("BYTE", self.data[4:5], 1))
+
         elif '[' in self.type:
             y = self.type.strip(']').split('[')
             if y[0] == 'CHAR':
@@ -243,12 +267,24 @@ class Parameter(object):
         return x
 
     def pack(self):
-        if self.type == "UINT, USHORT[2]": # unusual case of the date
-           x=[]
-           x.extend(setValue("UINT", self.value[0]))
-           x.extend(setValue("USHORT", self.value[1]))
-           x.extend(setValue("USHORT", self.value[2]))
-           return x
+        if self.type == "UINT,USHORT[2]": # unusual case of the date
+            x=[]
+            x.extend(setValue("UINT", self.value[0]))
+            x.extend(setValue("USHORT", self.value[1]))
+            x.extend(setValue("USHORT", self.value[2]))
+            return x
+        elif self.type == "USHORT[3],UINT": #Unusual case of the time
+            x=[]
+            x.extend(setValue("USHORT", self.value[0]))
+            x.extend(setValue("USHORT", self.value[1]))
+            x.extend(setValue("USHORT", self.value[2]))
+            x.extend(setValue("UINT", self.value[3]))
+            return x
+        elif self.type == "INT[2],BYTE": #Unusual case of encoder
+            x=[]
+            x.extend(setValue("INT", self.value[0]))
+            x.extend(setValue("INT", self.value[1]))
+            x.extend(setValue("BYTE", self.value[2]))
         elif '[' in self.type:
             y = self.type.strip(']').split('[')
             #if y[0] == 'CHAR':

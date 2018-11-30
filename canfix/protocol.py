@@ -17,9 +17,9 @@
 # This is the CAN-FIX plugin. CAN-FIX is a CANBus based protocol for
 # aircraft data.
 
-# This file loads the XML protocol description file
+# This file loads the JSON protocol description file
 
-import xml.etree.ElementTree as ET
+import json
 import os
 import copy
 
@@ -35,7 +35,6 @@ class ParameterDef():
         self.units = None
         self.type = None
         self.multiplier = 1.0
-        self.offset = None
         self.min = None
         self.max = None
         self.index = None
@@ -43,35 +42,36 @@ class ParameterDef():
         self.metadata = {}
         self.remarks = []
 
-    def __str__(self):
-        s = "(0x%03X, %d) %s\n" % (self.id, self.id, self.name)
+    def __unicode__(self):
+        s = u"(0x%03X, %d) %s\n" % (self.id, self.id, self.name)
         if self.type:
-            s = s + "  Data Type: %s\n" % self.type
+            s += u"  Data Type: %s\n" % self.type
         if self.units:
             if self.multiplier == 1.0:
-                s = s + "  Units:     %s\n" % self.units
+                s += u"  Units:     {}\n".format(self.units)
             else:
-                s = s + "  Units:     %s x %s\n" % (self.units, str(self.multiplier))
-        if self.offset:
-            s = s + "  Offset:    %s\n" % str(self.offset)
+                s += u"  Units:     {} x {}\n".format(self.units, str(self.multiplier))
         if self.min:
-            s = s + "  Min:       %s\n" % str(self.min)
+            s += u"  Min:       %s\n" % str(self.min)
         if self.max:
-            s = s + "  Max:       %s\n" % str(self.max)
+            s += u"  Max:       %s\n" % str(self.max)
         if self.format:
-            s = s + "  Format:    %s\n" % self.format
+            s += u"  Format:    %s\n" % self.format
 
         if self.index:
-            s = s + "  Index:     %s\n" % self.index
+            s += u"  Index:     %s\n" % self.index
         if self.metadata:
-            s = s + "  Auxilliary Data:\n"
+            s += u"  Meta Data:\n"
             for each in self.metadata:
-                s = s + "   0x%02X - %s\n" % (each, self.metadata[each])
+                s += u"   0x%02X - %s\n" % (each, self.metadata[each])
         if self.remarks:
-            s = s + "  Remarks:\n"
+            s += u"  Remarks:\n"
             for each in self.remarks:
-                s = s + "    " + each + "\n"
+                s += u"    " + each + u"\n"
         return s
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
 
 def __getText(element, text):
     try:
@@ -86,50 +86,27 @@ def __getFloat(s):
     else:
         return None
 
+with open(os.path.dirname(__file__)+"/canfix.json") as f:
+    cf = json.load(f)
 
+groups = cf["groups"]
 
-tree = ET.parse(os.path.dirname(__file__)+"/canfix.xml")
-root = tree.getroot()
-if root.tag != "protocol":
-    raise ValueError("Root Tag is not protocol'")
+for each in cf["parameters"]:
 
-child = root.find("name")
-if child.text != "CANFIX":
-    raise ValueError("Not a CANFIX Protocol File")
+    pid = each["id"]
+    count = each["count"]
 
-child = root.find("version")
-version = child.text
-
-
-def __add_group(element):
-    child = element.find("name")
-    x = {}
-    x['name'] = element.find("name").text
-    x['startid'] = int(element.find("startid").text)
-    x['endid'] = int(element.find("endid").text)
-    groups.append(x)
-
-def __add_parameter(element):
-    pid = int(element.find("id").text)
-    count = int(element.find("count").text)
-
-    p = ParameterDef(element.find("name").text)
-    p.units = __getText(element, "units")
-    p.format = __getText(element, "format")
-    p.type = __getText(element, "type")
-    p.multiplier = __getFloat(__getText(element, "multiplier"))
-    p.offset = __getFloat(__getText(element, "offset"))
-    p.min = __getFloat(__getText(element, "min"))
-    p.max = __getFloat(__getText(element, "max"))
-    p.index = __getText(element, "index")
-
-    l = element.findall('aux')
-    for each in l:
-        p.metadata[int(each.attrib['id'])] = each.text
-    l = element.findall('remarks')
-
-    for each in l:
-        p.remarks.append(each.text)
+    p = ParameterDef(each["name"])
+    p.units = each["units"] if "units" in each else None
+    p.format = each["format"] if "format" in each else None
+    p.type = each["type"]
+    p.multiplier = float(each["multiplier"]) if "multiplier" in each else None
+    p.min = each["min"] if "min" in each else None
+    p.max = each["max"] if "max" in each else None
+    p.index = each["index"]
+    for x in each["metadata"]:
+        p.metadata[int(x)] = each["metadata"][x]
+    p.remarks = each["remarks"]
 
     if count > 1:
         for n in range(count):
@@ -141,23 +118,8 @@ def __add_parameter(element):
         p.id = pid
         parameters[pid] = p
 
-for child in root:
-    if child.tag == "group":
-        __add_group(child)
-    elif child.tag == "parameter":
-        __add_parameter(child)
 
 def getGroup(id):
     for each in groups:
         if id >= each['startid'] and id <= each['endid']:
             return each
-
-#if __name__ == "__main__":
-    #print "CANFIX Protocol Version " + version
-    #print "Groups:"
-    #for each in groups:
-        #print "  %s %d-%d" % (each["name"], each["startid"], each["endid"])
-
-    #print "Parameters:"
-    #for each in parameters:
-        #print parameters[each]
