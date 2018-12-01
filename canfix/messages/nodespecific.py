@@ -258,3 +258,73 @@ class BitRateSet(NodeSpecific):
             elif self.status == MSG_FAIL:
                 s += ": Failure Response"
         return s
+
+
+class NodeIDSet(NodeSpecific):
+    def __init__(self, msg=None, newnode=None):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x02
+            self.msgType = MSG_RESPONSE
+            self.sendNode = None
+            self.destNode = None
+            if newnode is not None: self.newnode = newnode
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id -1792
+        self.controlCode = msg.data[0]
+        assert self.controlCode == 0x02
+        self.destNode = msg.data[1]
+
+        if msg.dlc == 3:
+            if msg.data[2] == 0x00:
+                self.msgType = MSG_RESPONSE
+            else:
+                self.msgType = MSG_REQUEST
+                self.newnode = msg.data[2]
+        else:
+            raise MsgSizeError("Message size is incorrect")
+
+    def getMessage(self):
+        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg.data = self.data
+        msg.dlc = len(msg.data)
+        return msg
+
+    msg = property(getMessage, setMessage)
+
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.destNode)
+        if self.msgType == MSG_RESPONSE:
+            data.append(0x00)
+        elif self.msgType == MSG_REQUEST:
+            data.append(self.newnode)
+        return data
+
+    data = property(getData)
+
+    def setNewNode(self, newnode):
+        if newnode >= 1 and newnode <= 255:
+            self.__newnode = newnode
+        else:
+            raise ValueError("Invalid Node Number Given")
+        self.msgType = MSG_REQUEST
+
+    def getNewNode(self):
+        return self.__newnode
+
+    newnode = property(getNewNode, setNewNode)
+
+    def __str__(self):
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
+        if self.msgType == MSG_REQUEST:
+            s += ": request new node id={}".format(self.newnode)
+        else:
+            s += ": Success Response"
+        return s

@@ -22,7 +22,7 @@ from .globals import *
 from .messages.nodealarm import NodeAlarm
 from .messages.parameter import Parameter
 from .messages.twoway import TwoWayMsg
-from .messages.nodespecific import NodeSpecific, NodeIdentification, BitRateSet
+from .messages.nodespecific import NodeSpecific, NodeIdentification, BitRateSet, NodeIDSet
 
 
 def parseMessage(msg):
@@ -42,6 +42,9 @@ def parseMessage(msg):
             return NodeIdentification(msg)
         elif msg.data[0] == 0x01:
             return BitRateSet(msg)
+        elif msg.data[0] == 0x02:
+            return NodeIDSet(msg)
+
         # Default we just return a generic NodeSpecific Message
         return NodeSpecific(msg)
     else:

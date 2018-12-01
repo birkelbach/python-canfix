@@ -182,10 +182,6 @@ class Parameter(object):
         self.value = self.unpack()
         x = self.function>>4
         self.meta = p.metadata[x] if x in p.metadata else None
-        # try:
-        #     self.meta = p.metadata[self.function>>4]
-        # except KeyError:
-        #     self.meta = None
 
         self.updated = time.time()
 
@@ -229,6 +225,7 @@ class Parameter(object):
     def unpack(self):
         # TODO: Make sure that self.data is the right size.  Should log error
         #       and set the failure bit.
+        # TODO: Need to make these special cases more generic
         if self.type == "UINT,USHORT[2]": #Unusual case of the date
             x = []
             x.append(getValue("UINT", self.data[0:2], 1))
@@ -287,9 +284,6 @@ class Parameter(object):
             x.extend(setValue("BYTE", self.value[2]))
         elif '[' in self.type:
             y = self.type.strip(']').split('[')
-            #if y[0] == 'CHAR':
-            #    return setValue(self.type, self.value)
-            #else:
             x = []
             for n in range(int(y[1])):
                 x.extend(setValue(y[0], self.value[n]))
