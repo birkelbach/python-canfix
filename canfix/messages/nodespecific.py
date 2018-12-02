@@ -261,7 +261,7 @@ class BitRateSet(NodeSpecific):
 
 
 class NodeIDSet(NodeSpecific):
-    def __init__(self, msg=None, newnode=None):
+    def __init__(self, msg=None, newNode=None):
         if msg != None:
             self.setMessage(msg)
         else:
@@ -269,7 +269,7 @@ class NodeIDSet(NodeSpecific):
             self.msgType = MSG_RESPONSE
             self.sendNode = None
             self.destNode = None
-            if newnode is not None: self.newnode = newnode
+            if newNode is not None: self.newNode = newNode
 
     def setMessage(self, msg):
         log.debug(str(msg))
@@ -283,7 +283,7 @@ class NodeIDSet(NodeSpecific):
                 self.msgType = MSG_RESPONSE
             else:
                 self.msgType = MSG_REQUEST
-                self.newnode = msg.data[2]
+                self.newNode = msg.data[2]
         else:
             raise MsgSizeError("Message size is incorrect")
 
@@ -302,29 +302,110 @@ class NodeIDSet(NodeSpecific):
         if self.msgType == MSG_RESPONSE:
             data.append(0x00)
         elif self.msgType == MSG_REQUEST:
-            data.append(self.newnode)
+            data.append(self.newNode)
         return data
 
     data = property(getData)
 
-    def setNewNode(self, newnode):
-        if newnode >= 1 and newnode <= 255:
-            self.__newnode = newnode
+    def setNewNode(self, newNode):
+        if newNode >= 1 and newNode <= 255:
+            self.__newNode = newNode
         else:
             raise ValueError("Invalid Node Number Given")
         self.msgType = MSG_REQUEST
 
     def getNewNode(self):
-        return self.__newnode
+        return self.__newNode
 
-    newnode = property(getNewNode, setNewNode)
+    newNode = property(getNewNode, setNewNode)
 
     def __str__(self):
         s = "[" + str(self.sendNode) + "]"
         s += "->[" + str(self.destNode) + "] "
         s += self.codes[self.controlCode]
         if self.msgType == MSG_REQUEST:
-            s += ": request new node id={}".format(self.newnode)
+            s += ": request new node id={}".format(self.newNode)
         else:
             s += ": Success Response"
+        return s
+
+
+class DisableParameter(NodeSpecific):
+    def __init__(self, msg=None, identifier=None):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x03
+            self.msgType = MSG_RESPONSE
+            self.sendNode = None
+            self.destNode = None
+            if identifier is not None: self.identifier = identifier
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id -1792
+        self.controlCode = msg.data[0]
+        assert self.controlCode == 0x03
+        self.destNode = msg.data[1]
+
+        if msg.dlc == 3:
+            self.msgType = MSG_RESPONSE
+            if msg.data[2] == 0x00:
+                self.status = MSG_SUCCESS
+            elif msg.data[2] == 0x01:
+                self.status = MSG_FAIL
+            else:
+                raise ValueError("Unknown Error Code {}".format(msg.data[2]))
+        elif msg.dlc == 4:
+            self.identifier = msg.data[2] + (msg.data[3]<<8)
+        else:
+            raise MsgSizeError("Message size is incorrect")
+
+    def getMessage(self):
+        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg.data = self.data
+        msg.dlc = len(msg.data)
+        return msg
+
+    msg = property(getMessage, setMessage)
+
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.destNode)
+        if self.msgType == MSG_RESPONSE:
+            if self.status == MSG_SUCCESS:
+                data.append(0x00)
+            else:
+                data.append(0x01)
+        elif self.msgType == MSG_REQUEST:
+            data.append(self.identifier % 256)
+            data.append(self.identifier >> 8)
+        return data
+
+    data = property(getData)
+
+    def setIdentifier(self, identifier):
+        if identifier >= 256 and identifier <= 1759:
+            self.__identifier = identifier
+        else:
+            raise ValueError("Invalid identifier Given")
+        self.msgType = MSG_REQUEST
+
+    def getIdentifier(self):
+        return self.__identifier
+
+    identifier = property(getIdentifier, setIdentifier)
+
+    def __str__(self):
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
+        if self.msgType == MSG_REQUEST:
+            s += ": request identifier={}".format(self.identifier)
+        else:
+            if self.status == MSG_SUCCESS:
+                s += ": Success Response"
+            else:
+                s += ": Failure Response"
         return s

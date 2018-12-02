@@ -170,6 +170,10 @@ class TestNodeIdentification(unittest.TestCase):
         with self.assertRaises(ValueError):
               n = canfix.NodeIdentification(device=1, fwrev=1, model=0x1000000)
 
+class TestBitRateSet(unittest.TestCase):
+    def setUp(self):
+        pass
+
     def test_BitRateSetMessageRequest(self):
         d = bytearray([0x01, 0x02, 0x01])
         msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
@@ -249,6 +253,10 @@ class TestNodeIdentification(unittest.TestCase):
             n = canfix.BitRateSet(bitrate=1200)
 
 
+class TestNodeIDSet(unittest.TestCase):
+    def setUp(self):
+        pass
+
     def test_NodeIDSetMessageRequest(self):
         d = bytearray([0x02, 0x03, 0x04])
         msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
@@ -258,10 +266,10 @@ class TestNodeIdentification(unittest.TestCase):
         self.assertEqual(p.controlCode, 0x02)
         self.assertEqual(p.destNode, 0x03)
         self.assertEqual(p.msgType, canfix.MSG_REQUEST)
-        self.assertEqual(p.newnode, 4)
+        self.assertEqual(p.newNode, 4)
 
     def test_NodeIDeSetBuildRequest(self):
-        n = canfix.NodeIDSet(newnode=3)
+        n = canfix.NodeIDSet(newNode=3)
         n.sendNode = 0x05
         n.destNode = 0x01
         self.assertEqual(n.msg.arbitration_id, 0x700+0x05)
@@ -291,10 +299,88 @@ class TestNodeIdentification(unittest.TestCase):
         n.sendNode = 0x05
         n.destNode = 0x01
         with self.assertRaises(ValueError):
-            n.newnode = 0x00
+            n.newNode = 0x00
         with self.assertRaises(ValueError):
-            n.newnode = 256
-        
+            n.newNode = 256
+
+class TestDisableParameter(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_DisableParameterMessageRequest(self):
+        d = bytearray([0x03, 0x04, 0x05, 0x01])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.DisableParameter)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x03)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.msgType, canfix.MSG_REQUEST)
+        self.assertEqual(p.identifier, 261)
+
+    def test_DisableParameterMessageResponse(self):
+        d = bytearray([0x03, 0x04, 0x00])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.DisableParameter)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x03)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.status, canfix.MSG_SUCCESS)
+
+        d = bytearray([0x03, 0x04, 0x01])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.DisableParameter)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x03)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.status, canfix.MSG_FAIL)
+
+    def test_DisableParameterBuildRequest(self):
+        n = canfix.DisableParameter()
+        n.sendNode = 0x03
+        n.destNode = 0x01
+        n.msgType = canfix.MSG_REQUEST
+        n.identifier = 0x183
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x83, 0x01]))
+
+    def test_DisableParameterBuildResponse(self):
+        n = canfix.DisableParameter()
+        n.sendNode = 0x03
+        n.destNode = 0x01
+        n.msgType = canfix.MSG_RESPONSE
+        n.status = canfix.MSG_SUCCESS
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x00]))
+
+        n.status = canfix.MSG_FAIL
+        self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x01]))
+
+    def test_DisableParameterMsgSizeError(self):
+        d = bytearray([0x03, 0x03, 0x04, 0x05, 0x06])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        with self.assertRaises(canfix.MsgSizeError):
+            p = canfix.parseMessage(msg)
+        d = bytearray([0x03, 0x03])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        with self.assertRaises(canfix.MsgSizeError):
+            p = canfix.parseMessage(msg)
+
+    def test_DisableParameterNodeIDError(self):
+        n = canfix.DisableParameter()
+        n.sendNode = 0x05
+        n.destNode = 0x01
+        n.identifier = 1759
+        n.identifier = 256
+        with self.assertRaises(ValueError):
+            n.identifier = 1760
+        with self.assertRaises(ValueError):
+            n.identifier = 255
+
 
     # TODO Test default destination node
     # TODO Check STR outputs for requests and responses
