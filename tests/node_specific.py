@@ -41,12 +41,12 @@ class TestNodeSpecific(unittest.TestCase):
         self.assertEqual(p.data, bytearray([0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
 
     def test_NodeSpecificMessageNoData(self):
-        d = bytearray([0x05])
+        d = bytearray([0x61])
         msg = can.Message(extended_id=False, arbitration_id=0x700, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
-        self.assertEqual(p.controlCode, 0x05)
+        self.assertEqual(p.controlCode, 0x61)
 
     def test_NodeSpecificCANMessage(self):
         p = canfix.NodeSpecific()
@@ -393,6 +393,120 @@ class TestDisableParameter(unittest.TestCase):
             n.identifier = "implied airspeed"
 
 
+
+    # TODO Test default destination node
+    # TODO Check STR outputs for requests and responses
+
+class TestEnableParameter(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_EnableParameterMessageRequest(self):
+        d = bytearray([0x04, 0x04, 0x05, 0x01])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.EnableParameter)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x04)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.msgType, canfix.MSG_REQUEST)
+        self.assertEqual(p.identifier, 261)
+
+    def test_EnableParameterMessageResponse(self):
+        d = bytearray([0x04, 0x04, 0x00])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.EnableParameter)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x04)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.status, canfix.MSG_SUCCESS)
+
+        d = bytearray([0x04, 0x04, 0x01])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.EnableParameter)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x04)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.status, canfix.MSG_FAIL)
+
+    def test_EnableParameterBuildRequest(self):
+        n = canfix.EnableParameter()
+        n.sendNode = 0x03
+        n.destNode = 0x01
+        n.msgType = canfix.MSG_REQUEST
+        n.identifier = 0x183
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x04, 0x01, 0x83, 0x01]))
+
+    def test_EnableParameterBuildRequestString(self):
+        n = canfix.EnableParameter()
+        n.sendNode = 0x03
+        n.destNode = 0x01
+        n.msgType = canfix.MSG_REQUEST
+        n.identifier = "Indicated Airspeed"
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x04, 0x01, 0x83, 0x01]))
+
+    def test_EnableParameterBuildResponse(self):
+        n = canfix.EnableParameter()
+        n.sendNode = 0x03
+        n.destNode = 0x01
+        n.msgType = canfix.MSG_RESPONSE
+        n.status = canfix.MSG_SUCCESS
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x04, 0x01, 0x00]))
+
+        n.status = canfix.MSG_FAIL
+        self.assertEqual(n.msg.data, bytearray([0x04, 0x01, 0x01]))
+
+    def test_EnableParameterMsgSizeError(self):
+        d = bytearray([0x04, 0x03, 0x04, 0x05, 0x06])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        with self.assertRaises(canfix.MsgSizeError):
+            p = canfix.parseMessage(msg)
+        d = bytearray([0x04, 0x03])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        with self.assertRaises(canfix.MsgSizeError):
+            p = canfix.parseMessage(msg)
+
+    def test_EnableParameterNodeIDError(self):
+        n = canfix.EnableParameter()
+        n.sendNode = 0x05
+        n.destNode = 0x01
+        n.identifier = 1759
+        n.identifier = 256
+        with self.assertRaises(ValueError):
+            n.identifier = 1760
+        with self.assertRaises(ValueError):
+            n.identifier = 255
+        with self.assertRaises(ValueError):
+            n.identifier = "implied airspeed"
+
+
+
+class TestNodeReport(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_EnableParameterMessageRequest(self):
+        d = bytearray([0x05, 0x04])
+        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.NodeReport)
+        self.assertEqual(p.sendNode, 0x01)
+        self.assertEqual(p.controlCode, 0x05)
+        self.assertEqual(p.destNode, 0x04)
+
+    def test_EnableParameterBuildRequest(self):
+        n = canfix.NodeReport()
+        n.sendNode = 0x03
+        n.destNode = 0x01
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x05, 0x01]))
 
     # TODO Test default destination node
     # TODO Check STR outputs for requests and responses

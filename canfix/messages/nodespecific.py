@@ -416,3 +416,78 @@ class DisableParameter(NodeSpecific):
             else:
                 s += ": Failure Response"
         return s
+
+
+# We can use most of the DisableParameter code only the ControlCode is different
+class EnableParameter(DisableParameter):
+    def __init__(self, msg=None, identifier=None):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x04
+            self.msgType = MSG_RESPONSE
+            self.sendNode = None
+            self.destNode = None
+            if identifier is not None: self.identifier = identifier
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id -1792
+        self.controlCode = msg.data[0]
+        assert self.controlCode == 0x04
+        self.destNode = msg.data[1]
+
+        if msg.dlc == 3:
+            self.msgType = MSG_RESPONSE
+            if msg.data[2] == 0x00:
+                self.status = MSG_SUCCESS
+            elif msg.data[2] == 0x01:
+                self.status = MSG_FAIL
+            else:
+                raise ValueError("Unknown Error Code {}".format(msg.data[2]))
+        elif msg.dlc == 4:
+            self.identifier = msg.data[2] + (msg.data[3]<<8)
+        else:
+            raise MsgSizeError("Message size is incorrect")
+
+
+class NodeReport(NodeSpecific):
+    def __init__(self, msg=None, newNode=None):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x05
+            self.sendNode = None
+            self.destNode = None
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id -1792
+        self.controlCode = msg.data[0]
+        assert self.controlCode == 0x05
+        self.destNode = msg.data[1]
+
+        if msg.dlc != 2:
+            raise MsgSizeError("Message size is incorrect")
+
+    def getMessage(self):
+        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg.data = self.data
+        msg.dlc = len(msg.data)
+        return msg
+
+    msg = property(getMessage, setMessage)
+
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.destNode)
+        return data
+
+    data = property(getData)
+
+    def __str__(self):
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
+        return s

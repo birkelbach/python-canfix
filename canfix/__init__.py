@@ -46,7 +46,10 @@ def parseMessage(msg):
             return NodeIDSet(msg)
         elif msg.data[0] == 0x03:
             return DisableParameter(msg)
-
+        elif msg.data[0] == 0x04:
+            return EnableParameter(msg)
+        elif msg.data[0] == 0x05:
+            return NodeReport(msg)
 
         # Default we just return a generic NodeSpecific Message
         return NodeSpecific(msg)
