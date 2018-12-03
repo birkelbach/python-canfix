@@ -20,6 +20,7 @@
 
 import can
 from ..globals import *
+from ..protocol import getParameterByName
 
 class NodeSpecific(object):
     """Represents a generic Node Specific Message"""
@@ -386,6 +387,12 @@ class DisableParameter(NodeSpecific):
     data = property(getData)
 
     def setIdentifier(self, identifier):
+        if isinstance(identifier, str):
+            x = getParameterByName(identifier)
+            if x:
+                identifier = x.id
+            else:
+                identifier = 0
         if identifier >= 256 and identifier <= 1759:
             self.__identifier = identifier
         else:

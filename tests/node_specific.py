@@ -348,6 +348,15 @@ class TestDisableParameter(unittest.TestCase):
         self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
         self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x83, 0x01]))
 
+    def test_DisableParameterBuildRequestString(self):
+        n = canfix.DisableParameter()
+        n.sendNode = 0x03
+        n.destNode = 0x01
+        n.msgType = canfix.MSG_REQUEST
+        n.identifier = "Indicated Airspeed"
+        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x83, 0x01]))
+
     def test_DisableParameterBuildResponse(self):
         n = canfix.DisableParameter()
         n.sendNode = 0x03
@@ -380,6 +389,9 @@ class TestDisableParameter(unittest.TestCase):
             n.identifier = 1760
         with self.assertRaises(ValueError):
             n.identifier = 255
+        with self.assertRaises(ValueError):
+            n.identifier = "implied airspeed"
+
 
 
     # TODO Test default destination node

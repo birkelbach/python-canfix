@@ -92,7 +92,6 @@ with open(os.path.dirname(__file__)+"/canfix.json") as f:
 groups = cf["groups"]
 
 for each in cf["parameters"]:
-
     pid = each["id"]
     count = each["count"]
 
@@ -123,3 +122,11 @@ def getGroup(id):
     for each in groups:
         if id >= each['startid'] and id <= each['endid']:
             return each
+
+# Returns the parameter given by 'name'
+def getParameterByName(name):
+    n = name.lower()
+    for each in parameters:
+        if parameters[each].name.lower() == n:
+            return parameters[each]
+    return None

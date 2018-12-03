@@ -23,7 +23,7 @@ if sys.version_info[0] >= 3:
     unicode = str
 import can
 import time
-from ..protocol import parameters
+from ..protocol import parameters, getParameterByName
 from ..utils import getTypeSize, getValue, setValue
 from ..globals import *
 
@@ -79,14 +79,13 @@ class Parameter(object):
     identifier = property(getIdentifier, setIdentifier)
 
     def setName(self, name):
-        s = name.upper()
-        for i in parameters:
-            if parameters[i].name.upper() == s:
-                log.debug("Setting parameter id to {}, based on name {}".format(i, name))
-                self.__msg = can.Message(arbitration_id=i, extended_id=False)
-                self.__identifier = i
-                self.__parameterData(self.__msg.arbitration_id)
-                return
+        x = getParameterByName(name)
+        if x:
+            log.debug("Setting parameter id to {}, based on name {}".format(x.id, name))
+            self.__msg = can.Message(arbitration_id=x.id, extended_id=False)
+            self.__identifier = x.id
+            self.__parameterData(self.__msg.arbitration_id)
+            return
         raise ValueError("Unknown Parameter Name - {}".format(name))
 
     def getName(self):
