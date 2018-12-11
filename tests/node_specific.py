@@ -508,8 +508,14 @@ class TestNodeReport(unittest.TestCase):
         self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
         self.assertEqual(n.msg.data, bytearray([0x05, 0x01]))
 
-    # TODO Test default destination node
-    # TODO Check STR outputs for requests and responses
+# TODO Test default destination node
+# TODO Check STR outputs for requests and responses
+# TODO Test Node Specific Messages
+# TODO Test Firmware Update Messages
+# TODO Test Two-Way Connection Request
+# TODO Test Node Configuration Set / Query Messages
+# TODO Test Node Description Message
+# TODO Test Parameter Set Message
 
 
 if __name__ == '__main__':

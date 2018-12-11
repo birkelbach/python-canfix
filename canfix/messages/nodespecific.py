@@ -491,3 +491,60 @@ class NodeReport(NodeSpecific):
         s += "->[" + str(self.destNode) + "] "
         s += self.codes[self.controlCode]
         return s
+
+
+class NodeStatus(NodeSpecific):
+    def __init__(self, msg=None, parameter=None, value=None, datatype = None, multiplier = 1.0):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x06
+            self.sendNode = None
+            self.parameter = parameter
+            self.value = value
+            self.type =  type
+            self.multiplier = multiplier
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id -1792
+        self.controlCode = msg.data[0]
+        assert self.controlCode == 0x06
+        self.parameter = (self.data[2] * 256) + self.data[1]
+
+        if msg.dlc != 2:
+            raise MsgSizeError("Message size is incorrect")
+
+    def getMessage(self):
+        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg.data = self.data
+        msg.dlc = len(msg.data)
+        return msg
+
+    msg = property(getMessage, setMessage)
+
+    def setParameter(self, parameter):
+        if parameter < 0 or parameter > 65535:
+            raise ValueError("Paremeter Type must be between 0 and 65535")
+        self.__parameter = parameter
+
+    def getParameter(self):
+        return self.__parameter
+
+    parameter = property(getParameter, setParameter)
+
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.parameter % 256)
+        data.append(self.parameter >> 8)
+        data.extend(setValue(self.type, self.value, self.multiplier))
+        return data
+
+    data = property(getData)
+
+    def __str__(self):
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
+        return s
