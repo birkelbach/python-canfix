@@ -220,7 +220,8 @@ class Parameter(object):
                 return str(self.value) + " " + self.units
             else:
                 return str(self.value)
-
+# TODO Remove the unpack() and pack() methods in favor of the general use ones
+#      from util.py once those are properly tested.
     def unpack(self):
         # TODO: Make sure that self.data is the right size.  Should log error
         #       and set the failure bit.
