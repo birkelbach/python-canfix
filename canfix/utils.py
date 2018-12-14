@@ -135,27 +135,27 @@ def getValue(datatype, data, multiplier = 1.0):
 def setValue(datatype, value, multiplier=1.0):
     if datatype == "UINT,USHORT[2]": # unusual case of the date
         x=[]
-        x.extend(pack("UINT", value[0]))
-        x.extend(pack("USHORT", value[1]))
-        x.extend(pack("USHORT", value[2]))
+        x.extend(pack("UINT", value[0], 1))
+        x.extend(pack("USHORT", value[1], 1))
+        x.extend(pack("USHORT", value[2], 1))
         return x
     elif datatype == "USHORT[3],UINT": #Unusual case of the time
         x=[]
-        x.extend(pack("USHORT", value[0]))
-        x.extend(pack("USHORT", value[1]))
-        x.extend(pack("USHORT", value[2]))
-        x.extend(pack("UINT", value[3]))
+        x.extend(pack("USHORT", value[0], 1))
+        x.extend(pack("USHORT", value[1], 1))
+        x.extend(pack("USHORT", value[2], 1))
+        x.extend(pack("UINT", value[3], 1))
         return x
     elif datatype == "INT[2],BYTE": #Unusual case of encoder
         x=[]
-        x.extend(pack("INT", value[0]))
-        x.extend(pack("INT", value[1]))
-        x.extend(pack("BYTE", value[2]))
+        x.extend(pack("INT", value[0], 1))
+        x.extend(pack("INT", value[1], 1))
+        x.extend(pack("BYTE", value[2], 1))
     elif '[' in datatype:
         y = datatype.strip(']').split('[')
         x = []
         for n in range(int(y[1])):
-            x.extend(pack(y[0], value[n]))
+            x.extend(pack(y[0], value[n], 1))
         return x
     else:
         return pack(datatype, value, multiplier)

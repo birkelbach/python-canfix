@@ -220,76 +220,18 @@ class Parameter(object):
                 return str(self.value) + " " + self.units
             else:
                 return str(self.value)
-# TODO Remove the unpack() and pack() methods in favor of the general use ones
-#      from util.py once those are properly tested.
+
+
     def unpack(self):
+        x = getValue(self.type, self.data, self.multiplier)
         # TODO: Make sure that self.data is the right size.  Should log error
         #       and set the failure bit.
-        # TODO: Need to make these special cases more generic
-        if self.type == "UINT,USHORT[2]": #Unusual case of the date
-            x = []
-            x.append(getValue("UINT", self.data[0:2], 1))
-            x.append(getValue("USHORT", self.data[2:3], 1))
-            x.append(getValue("USHORT", self.data[3:4], 1))
-            for each in x:
-                if each==None: self.__failure=True
-        elif self.type == "USHORT[3],UINT": #Unusual case of the time
-            x = []
-            x.append(getValue("USHORT", self.data[0:1], 1))
-            x.append(getValue("USHORT", self.data[1:2], 1))
-            x.append(getValue("USHORT", self.data[2:3], 1))
-            x.append(getValue("UINT", self.data[3:7], 1))
-            for each in x:
-                if each==None: self.__failure=True
-        elif self.type == "INT[2],BYTE": #Unusual case of encoder
-            x = []
-            x.append(getValue("INT", self.data[0:2], 1))
-            x.append(getValue("INT", self.data[2:4], 1))
-            x.append(getValue("BYTE", self.data[4:5], 1))
 
-        elif '[' in self.type:
-            y = self.type.strip(']').split('[')
-            if y[0] == 'CHAR':
-                x = getValue(self.type, self.data, self.multiplier)
-            else:
-                x = []
-                size = getTypeSize(y[0])
-                for n in range(int(y[1])):
-                    x.append(getValue(y[0], self.data[size*n:size*n+size], self.multiplier))
-                for each in x:
-                    if each==None: self.__failure=True
-        else:
-            x = getValue(self.type, self.data, self.multiplier)
-            if x == None: self.__failure = True
         return x
 
     def pack(self):
-        if self.type == "UINT,USHORT[2]": # unusual case of the date
-            x=[]
-            x.extend(setValue("UINT", self.value[0]))
-            x.extend(setValue("USHORT", self.value[1]))
-            x.extend(setValue("USHORT", self.value[2]))
-            return x
-        elif self.type == "USHORT[3],UINT": #Unusual case of the time
-            x=[]
-            x.extend(setValue("USHORT", self.value[0]))
-            x.extend(setValue("USHORT", self.value[1]))
-            x.extend(setValue("USHORT", self.value[2]))
-            x.extend(setValue("UINT", self.value[3]))
-            return x
-        elif self.type == "INT[2],BYTE": #Unusual case of encoder
-            x=[]
-            x.extend(setValue("INT", self.value[0]))
-            x.extend(setValue("INT", self.value[1]))
-            x.extend(setValue("BYTE", self.value[2]))
-        elif '[' in self.type:
-            y = self.type.strip(']').split('[')
-            x = []
-            for n in range(int(y[1])):
-                x.extend(setValue(y[0], self.value[n]))
-            return x
-        else:
-            return setValue(self.type, self.value, self.multiplier)
+        return setValue(self.type, self.value, self.multiplier)
+
 
     def __cmp__(self, other):
         if self.__identifier < other.__identifier:
