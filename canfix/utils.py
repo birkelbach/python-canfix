@@ -76,19 +76,28 @@ def pack(datatype, value, multiplier):
              "INT":"<h", "DINT":"<l", "UDINT":"<L", "FLOAT":"<f"}
 
     if datatype == "BYTE":
-        return None
+        x = bytearray([0x00])
+        for bit in range(8):
+            if value[bit]:
+                x[0] |= 0x01<<bit
     elif datatype == "WORD":
-        return None
-    try:
-        if datatype != "FLOAT":
-            x = struct.pack(table[datatype], int(round(value / multiplier)))
-        else:
-            x = struct.pack(table[datatype], value / multiplier)
-        return x
-    except KeyError:
-        if "CHAR" in datatype:
-            return [ord(value)]
-        return None
+        x = bytearray([0x00, 0x00])
+        for bit in range(8):
+            if value[bit]:
+                x[0] |= 0x01<<bit
+            if value[bit+8]:
+                x[1] |= 0x01<<bit
+    else:
+        try:
+            if datatype != "FLOAT":
+                x = struct.pack(table[datatype], int(round(value / multiplier)))
+            else:
+                x = struct.pack(table[datatype], value / multiplier)
+        except KeyError:
+            if "CHAR" in datatype:
+                return [ord(value)]
+            return None
+    return x
 
 # This function takes the data type, a byte array of data and
 def getValue(datatype, data, multiplier = 1.0):
@@ -134,23 +143,24 @@ def getValue(datatype, data, multiplier = 1.0):
 
 def setValue(datatype, value, multiplier=1.0):
     if datatype == "UINT,USHORT[2]": # unusual case of the date
-        x=[]
+        x=bytearray([])
         x.extend(pack("UINT", value[0], 1))
         x.extend(pack("USHORT", value[1], 1))
         x.extend(pack("USHORT", value[2], 1))
         return x
     elif datatype == "USHORT[3],UINT": #Unusual case of the time
-        x=[]
+        x=bytearray([])
         x.extend(pack("USHORT", value[0], 1))
         x.extend(pack("USHORT", value[1], 1))
         x.extend(pack("USHORT", value[2], 1))
         x.extend(pack("UINT", value[3], 1))
         return x
     elif datatype == "INT[2],BYTE": #Unusual case of encoder
-        x=[]
+        x=bytearray([])
         x.extend(pack("INT", value[0], 1))
         x.extend(pack("INT", value[1], 1))
         x.extend(pack("BYTE", value[2], 1))
+        return x
     elif '[' in datatype:
         y = datatype.strip(']').split('[')
         x = []
