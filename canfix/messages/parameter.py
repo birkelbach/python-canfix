@@ -178,7 +178,10 @@ class Parameter(object):
             self.annunciate = True
         else:
             self.annunciate = False
-        self.value = self.unpack()
+        x = getValue(self.type, self.data, self.multiplier)
+        # TODO: Make sure that self.data is the right size.  Should log error
+        #       and set the failure bit.
+        self.value = getValue(self.type, self.data, self.multiplier)
         x = self.function>>4
         self.meta = p.metadata[x] if x in p.metadata else None
 
@@ -195,7 +198,7 @@ class Parameter(object):
             self.data.append(0)
 
         self.data.append(self.function)
-        self.data.extend(self.pack())
+        self.data.extend(setValue(self.type, self.value, self.multiplier))
         self.__msg.data = self.data
         self.__msg.dlc = len(self.data)
         return self.__msg
@@ -220,17 +223,6 @@ class Parameter(object):
                 return str(self.value) + " " + self.units
             else:
                 return str(self.value)
-
-
-    def unpack(self):
-        x = getValue(self.type, self.data, self.multiplier)
-        # TODO: Make sure that self.data is the right size.  Should log error
-        #       and set the failure bit.
-
-        return x
-
-    def pack(self):
-        return setValue(self.type, self.value, self.multiplier)
 
 
     def __cmp__(self, other):
