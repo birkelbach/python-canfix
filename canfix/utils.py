@@ -95,6 +95,8 @@ def pack(datatype, value, multiplier):
         except KeyError:
             if "CHAR" in datatype:
                 return [ord(value)]
+            # else:
+            #     raise
             return None
     return x
 
@@ -128,30 +130,25 @@ def getValue(datatype, data, multiplier = 1.0):
 
 
 def setValue(datatype, value, multiplier=1.0):
-    if datatype == "UINT,USHORT[2]": # unusual case of the date
-        x=bytearray([])
-        x.extend(pack("UINT", value[0], 1))
-        x.extend(pack("USHORT", value[1], 1))
-        x.extend(pack("USHORT", value[2], 1))
-        return x
-    elif datatype == "USHORT[3],UINT": #Unusual case of the time
-        x=bytearray([])
-        x.extend(pack("USHORT", value[0], 1))
-        x.extend(pack("USHORT", value[1], 1))
-        x.extend(pack("USHORT", value[2], 1))
-        x.extend(pack("UINT", value[3], 1))
-        return x
-    elif datatype == "INT[2],BYTE": #Unusual case of encoder
-        x=bytearray([])
-        x.extend(pack("INT", value[0], 1))
-        x.extend(pack("INT", value[1], 1))
-        x.extend(pack("BYTE", value[2], 1))
-        return x
-    elif '[' in datatype:
-        y = datatype.strip(']').split('[')
-        x = []
-        for n in range(int(y[1])):
-            x.extend(pack(y[0], value[n], 1))
-        return x
+    dtypes = datatype.split(',')
+    x = bytearray([])
+    if len(dtypes) == 1:
+        if '[' in datatype:
+            y = datatype.strip(']').split('[')
+            for n in range(int(y[1])):
+                x.extend(pack(y[0], value[n], 1))
+            return x
+        else:
+            return pack(datatype, value, multiplier)
     else:
-        return pack(datatype, value, multiplier)
+        i = 0
+        for dtype in dtypes:
+            if '[' in dtype:
+                y = dtype.strip(']').split('[')
+                for n in range(int(y[1])):
+                    x.extend(pack(y[0], value[i], 1))
+                    i += 1
+            else:
+                x.extend(pack(dtype, value[i], multiplier))
+                i += 1
+        return x
