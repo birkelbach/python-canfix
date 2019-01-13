@@ -22,6 +22,8 @@ import can
 from ..globals import *
 from ..protocol import getParameterByName
 
+start_id = 0x6E0
+
 class NodeSpecific(object):
     """Represents a generic Node Specific Message"""
     codes = ["Node Identification", "Bit Rate Set", "Node ID Set", "Disable Parameter",
@@ -40,13 +42,13 @@ class NodeSpecific(object):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         #self.destNode = msg.data[1]
         self.data = msg.data[1:]
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
         msg.data.append(self.controlCode)
         #msg.data.append(self.destNode)
         for each in self.data:
@@ -92,7 +94,7 @@ class NodeIdentification(NodeSpecific):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x00
         self.destNode = msg.data[1]
@@ -107,7 +109,7 @@ class NodeIdentification(NodeSpecific):
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
@@ -189,7 +191,7 @@ class BitRateSet(NodeSpecific):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x01
         self.destNode = msg.data[1]
@@ -208,7 +210,7 @@ class BitRateSet(NodeSpecific):
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
@@ -274,7 +276,7 @@ class NodeIDSet(NodeSpecific):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x02
         self.destNode = msg.data[1]
@@ -289,7 +291,7 @@ class NodeIDSet(NodeSpecific):
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
@@ -344,7 +346,7 @@ class DisableParameter(NodeSpecific):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x03
         self.destNode = msg.data[1]
@@ -363,7 +365,7 @@ class DisableParameter(NodeSpecific):
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
@@ -432,7 +434,7 @@ class EnableParameter(DisableParameter):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x04
         self.destNode = msg.data[1]
@@ -462,7 +464,7 @@ class NodeReport(NodeSpecific):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x05
         self.destNode = msg.data[1]
@@ -471,7 +473,7 @@ class NodeReport(NodeSpecific):
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
@@ -507,7 +509,7 @@ class NodeStatus(NodeSpecific):
 
     def setMessage(self, msg):
         log.debug(str(msg))
-        self.sendNode = msg.arbitration_id -1792
+        self.sendNode = msg.arbitration_id - start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x06
         self.parameter = (self.data[2] * 256) + self.data[1]
@@ -516,7 +518,7 @@ class NodeStatus(NodeSpecific):
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + 1792, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg

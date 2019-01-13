@@ -35,9 +35,7 @@ def parseMessage(msg):
         return NodeAlarm(msg)
     elif msg.arbitration_id < 1760:
         return Parameter(msg)
-    elif msg.arbitration_id < 1792:
-        return TwoWayMsg(msg)
-    elif msg.arbitration_id < 2048:
+    elif msg.arbitration_id < 2016:
         if msg.data[0] == 0x00:
             return NodeIdentification(msg)
         elif msg.data[0] == 0x01:
@@ -50,6 +48,10 @@ def parseMessage(msg):
             return EnableParameter(msg)
         elif msg.data[0] == 0x05:
             return NodeReport(msg)
+        else:
+            return NodeSpecific(msg) #TODO This should probably be an error
+    elif msg.arbitration_id < 2048:
+        return TwoWayMsg(msg)
 
         # Default we just return a generic NodeSpecific Message
         return NodeSpecific(msg)

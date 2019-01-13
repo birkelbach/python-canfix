@@ -25,7 +25,7 @@ class TestNodeSpecific(unittest.TestCase):
 
     def test_NodeSpecificMessage(self):
         d = bytearray([0x61, 0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80])
-        msg = can.Message(extended_id=False, arbitration_id=0x700, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E0, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
@@ -33,7 +33,7 @@ class TestNodeSpecific(unittest.TestCase):
         self.assertEqual(p.data, bytearray([0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80]))
 
         d = bytearray([0x61, 0x02, 0x03, 0x40, 0x50, 0x60, 0x70, 0x80])
-        msg = can.Message(extended_id=False, arbitration_id=0x7FF, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x7DF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0xFF)
@@ -42,7 +42,7 @@ class TestNodeSpecific(unittest.TestCase):
 
     def test_NodeSpecificMessageNoData(self):
         d = bytearray([0x61])
-        msg = can.Message(extended_id=False, arbitration_id=0x700, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E0, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
@@ -53,7 +53,7 @@ class TestNodeSpecific(unittest.TestCase):
         p.sendNode = 23
         p.controlCode = 0xFF
         m = p.msg
-        self.assertEqual(m.arbitration_id, 0x700 + 23)
+        self.assertEqual(m.arbitration_id, 0x6E0 + 23)
         self.assertEqual(m.data, bytearray([0xFF]))
 
     def test_NodeSpecificCANMessageWithData(self):
@@ -62,7 +62,7 @@ class TestNodeSpecific(unittest.TestCase):
         p.controlCode = 0xFF
         p.data = bytearray([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07])
         m = p.msg
-        self.assertEqual(m.arbitration_id, 0x700 + 23)
+        self.assertEqual(m.arbitration_id, 0x6E0 + 23)
         self.assertEqual(m.data, bytearray([0xFF, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]))
 
     # def test_NodeSpecificCANMessageNodeNotSet1(self):
@@ -113,7 +113,7 @@ class TestNodeIdentification(unittest.TestCase):
 
     def test_NodeIdentificationMessageRequest(self):
         d = bytearray([0x00, 0x02])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeIdentification)
         self.assertEqual(p.sendNode, 0x01)
@@ -123,7 +123,7 @@ class TestNodeIdentification(unittest.TestCase):
 
     def test_NodeIdentificationMessageResponse(self):
         d = bytearray([0x00, 0x02, 0x01, 0x40, 0x50, 0x60, 0x70, 0x80])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeIdentification)
         self.assertEqual(p.sendNode, 0x01)
@@ -136,7 +136,7 @@ class TestNodeIdentification(unittest.TestCase):
 
     def test_NodeIdentificationMessageSizeError(self):
         d = bytearray([0x00, 0x02, 0x01, 0x40, 0x50, 0x60, 0x70])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
 
@@ -144,7 +144,7 @@ class TestNodeIdentification(unittest.TestCase):
         n = canfix.NodeIdentification(device=12, fwrev=22, model=76543)
         n.sendNode = 0x01
         n.destNode = 0x02
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x01)
         self.assertEqual(n.msg.data, bytearray([0x00, 0x02, 0x01, 12, 22, 0xFF, 0x2A, 0x01]))
         self.assertEqual(n.msgType, canfix.MSG_RESPONSE)
 
@@ -152,7 +152,7 @@ class TestNodeIdentification(unittest.TestCase):
         n = canfix.NodeIdentification()
         n.sendNode = 0x01
         n.destNode = 0x02
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x01)
         self.assertEqual(n.msg.data, bytearray([0x00, 0x02]))
         self.assertEqual(n.msgType, canfix.MSG_REQUEST)
 
@@ -176,7 +176,7 @@ class TestBitRateSet(unittest.TestCase):
 
     def test_BitRateSetMessageRequest(self):
         d = bytearray([0x01, 0x02, 0x01])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.BitRateSet)
         self.assertEqual(p.sendNode, 0x01)
@@ -187,7 +187,7 @@ class TestBitRateSet(unittest.TestCase):
 
     def test_BitRateSetMessageResponse(self):
         d = bytearray([0x01, 0x02])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.BitRateSet)
         self.assertEqual(p.sendNode, 0x01)
@@ -197,7 +197,7 @@ class TestBitRateSet(unittest.TestCase):
         self.assertEqual(p.status, canfix.MSG_SUCCESS)
 
         d = bytearray([0x01, 0x02, 0xFF])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.BitRateSet)
         self.assertEqual(p.sendNode, 0x01)
@@ -210,7 +210,7 @@ class TestBitRateSet(unittest.TestCase):
         n = canfix.BitRateSet(bitrate=1)
         n.sendNode = 0x01
         n.destNode = 0x02
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x01)
         self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0x01]))
         self.assertEqual(n.msgType, canfix.MSG_REQUEST)
 
@@ -219,12 +219,12 @@ class TestBitRateSet(unittest.TestCase):
         n.sendNode = 0x01
         n.destNode = 0x02
         n.status = canfix.MSG_SUCCESS
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x01)
         self.assertEqual(n.msg.data, bytearray([0x01, 0x02]))
         self.assertEqual(n.msgType, canfix.MSG_RESPONSE)
 
         n.status = canfix.MSG_FAIL
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x01)
         self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0xFF]))
         self.assertEqual(n.msgType, canfix.MSG_RESPONSE)
 
@@ -232,7 +232,7 @@ class TestBitRateSet(unittest.TestCase):
         n = canfix.BitRateSet(bitrate=125)
         n.sendNode = 0x01
         n.destNode = 0x02
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x01)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x01)
         self.assertEqual(n.msg.data, bytearray([0x01, 0x02, 0x01]))
         self.assertEqual(n.msgType, canfix.MSG_REQUEST)
         n.bitrate = 250
@@ -259,7 +259,7 @@ class TestNodeIDSet(unittest.TestCase):
 
     def test_NodeIDSetMessageRequest(self):
         d = bytearray([0x02, 0x03, 0x04])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeIDSet)
         self.assertEqual(p.sendNode, 0x01)
@@ -272,7 +272,7 @@ class TestNodeIDSet(unittest.TestCase):
         n = canfix.NodeIDSet(newNode=3)
         n.sendNode = 0x05
         n.destNode = 0x01
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x05)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x05)
         self.assertEqual(n.msg.data, bytearray([0x02, 0x01, 0x03]))
         self.assertEqual(n.msgType, canfix.MSG_REQUEST)
 
@@ -281,16 +281,16 @@ class TestNodeIDSet(unittest.TestCase):
         n.sendNode = 0x03
         n.destNode = 0x01
         n.msgType = canfix.MSG_RESPONSE
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x02, 0x01, 0x00]))
 
     def test_NodeIDSetMsgSizeError(self):
         d = bytearray([0x02, 0x03, 0x04, 0x05])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
         d = bytearray([0x02, 0x03])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
 
@@ -309,7 +309,7 @@ class TestDisableParameter(unittest.TestCase):
 
     def test_DisableParameterMessageRequest(self):
         d = bytearray([0x03, 0x04, 0x05, 0x01])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.DisableParameter)
         self.assertEqual(p.sendNode, 0x01)
@@ -320,7 +320,7 @@ class TestDisableParameter(unittest.TestCase):
 
     def test_DisableParameterMessageResponse(self):
         d = bytearray([0x03, 0x04, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.DisableParameter)
         self.assertEqual(p.sendNode, 0x01)
@@ -330,7 +330,7 @@ class TestDisableParameter(unittest.TestCase):
         self.assertEqual(p.status, canfix.MSG_SUCCESS)
 
         d = bytearray([0x03, 0x04, 0x01])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.DisableParameter)
         self.assertEqual(p.sendNode, 0x01)
@@ -345,7 +345,7 @@ class TestDisableParameter(unittest.TestCase):
         n.destNode = 0x01
         n.msgType = canfix.MSG_REQUEST
         n.identifier = 0x183
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x83, 0x01]))
 
     def test_DisableParameterBuildRequestString(self):
@@ -354,7 +354,7 @@ class TestDisableParameter(unittest.TestCase):
         n.destNode = 0x01
         n.msgType = canfix.MSG_REQUEST
         n.identifier = "Indicated Airspeed"
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x83, 0x01]))
 
     def test_DisableParameterBuildResponse(self):
@@ -363,7 +363,7 @@ class TestDisableParameter(unittest.TestCase):
         n.destNode = 0x01
         n.msgType = canfix.MSG_RESPONSE
         n.status = canfix.MSG_SUCCESS
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x03, 0x01, 0x00]))
 
         n.status = canfix.MSG_FAIL
@@ -371,11 +371,11 @@ class TestDisableParameter(unittest.TestCase):
 
     def test_DisableParameterMsgSizeError(self):
         d = bytearray([0x03, 0x03, 0x04, 0x05, 0x06])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
         d = bytearray([0x03, 0x03])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
 
@@ -403,7 +403,7 @@ class TestEnableParameter(unittest.TestCase):
 
     def test_EnableParameterMessageRequest(self):
         d = bytearray([0x04, 0x04, 0x05, 0x01])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.EnableParameter)
         self.assertEqual(p.sendNode, 0x01)
@@ -414,7 +414,7 @@ class TestEnableParameter(unittest.TestCase):
 
     def test_EnableParameterMessageResponse(self):
         d = bytearray([0x04, 0x04, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.EnableParameter)
         self.assertEqual(p.sendNode, 0x01)
@@ -424,7 +424,7 @@ class TestEnableParameter(unittest.TestCase):
         self.assertEqual(p.status, canfix.MSG_SUCCESS)
 
         d = bytearray([0x04, 0x04, 0x01])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.EnableParameter)
         self.assertEqual(p.sendNode, 0x01)
@@ -439,7 +439,7 @@ class TestEnableParameter(unittest.TestCase):
         n.destNode = 0x01
         n.msgType = canfix.MSG_REQUEST
         n.identifier = 0x183
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x04, 0x01, 0x83, 0x01]))
 
     def test_EnableParameterBuildRequestString(self):
@@ -448,7 +448,7 @@ class TestEnableParameter(unittest.TestCase):
         n.destNode = 0x01
         n.msgType = canfix.MSG_REQUEST
         n.identifier = "Indicated Airspeed"
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x04, 0x01, 0x83, 0x01]))
 
     def test_EnableParameterBuildResponse(self):
@@ -457,7 +457,7 @@ class TestEnableParameter(unittest.TestCase):
         n.destNode = 0x01
         n.msgType = canfix.MSG_RESPONSE
         n.status = canfix.MSG_SUCCESS
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x04, 0x01, 0x00]))
 
         n.status = canfix.MSG_FAIL
@@ -465,11 +465,11 @@ class TestEnableParameter(unittest.TestCase):
 
     def test_EnableParameterMsgSizeError(self):
         d = bytearray([0x04, 0x03, 0x04, 0x05, 0x06])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
         d = bytearray([0x04, 0x03])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
 
@@ -494,7 +494,7 @@ class TestNodeReport(unittest.TestCase):
 
     def test_EnableParameterMessageRequest(self):
         d = bytearray([0x05, 0x04])
-        msg = can.Message(extended_id=False, arbitration_id=0x701, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeReport)
         self.assertEqual(p.sendNode, 0x01)
@@ -505,7 +505,7 @@ class TestNodeReport(unittest.TestCase):
         n = canfix.NodeReport()
         n.sendNode = 0x03
         n.destNode = 0x01
-        self.assertEqual(n.msg.arbitration_id, 0x700+0x03)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x05, 0x01]))
 
 # TODO Test default destination node

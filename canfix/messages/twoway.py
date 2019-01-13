@@ -29,7 +29,7 @@ class TwoWayMsg(object):
             self.type = "Request"
 
     def setMessage(self, msg):
-        self.channel = int((msg.arbitration_id - 1760) /2)
+        self.channel = int((msg.arbitration_id - 2016) /2)
         self.data = msg.data
         if msg.arbitration_id % 2 == 0:
             self.type = "Request"
@@ -38,7 +38,7 @@ class TwoWayMsg(object):
 
     def getMessage(self):
         msg = can.Message(extended_id=False)
-        msg.arbitration_id = self.channel*2 + 1760
+        msg.arbitration_id = self.channel*2 + 2016
         if self.type == "Response":
             msg.arbitration_id += 1
         msg.data = self.data
