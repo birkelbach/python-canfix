@@ -621,10 +621,74 @@ class TestUpdateFirmware(unittest.TestCase):
         self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x07, 0x05, 0x00]))
 
+class TestTwoWayConnection(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_TwoWayConnectionMessageRequest(self):
+        d = bytearray([0x08, 0x04, 0x02, 0x39, 0x30])
+        msg = can.Message(extended_id=False, arbitration_id=0x6E2, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.TwoWayConnection)
+        self.assertEqual(p.msgType, canfix.MSG_REQUEST)
+        self.assertEqual(p.sendNode, 0x02)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.controlCode, 0x08)
+        self.assertEqual(p.connectionType, 12345)
+        self.assertEqual(p.channel, 0x02)
+
+    def test_TwoWayConnectionMessageResponseFail(self):
+        d = bytearray([0x08, 0x04, 0x01])
+        msg = can.Message(extended_id=False, arbitration_id=0x6E2, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.TwoWayConnection)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.sendNode, 0x02)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.controlCode, 0x08)
+        self.assertEqual(p.status, canfix.MSG_FAIL)
+        self.assertEqual(p.errorCode, 0x01)
+
+    def test_TwoWayConnectionMessageResponseSucceed(self):
+        d = bytearray([0x08, 0x04, 0x00])
+        msg = can.Message(extended_id=False, arbitration_id=0x6E2, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.TwoWayConnection)
+        self.assertEqual(p.msgType, canfix.MSG_RESPONSE)
+        self.assertEqual(p.sendNode, 0x02)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.controlCode, 0x08)
+        self.assertEqual(p.status, canfix.MSG_SUCCESS)
+        self.assertEqual(p.errorCode, 0x00)
+
+    def test_TwoWayConnectionBuildRequest(self):
+        n = canfix.TwoWayConnection()
+        n.sendNode = 0x03
+        n.destNode = 0x05
+        n.connectionType = 54321
+        n.channel = 0x02
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x08, 0x05, 0x02, 0x31, 0xD4]))
+
+    def test_TwoWayConnectionBuildResponseFail(self):
+        n = canfix.TwoWayConnection()
+        n.sendNode = 0x03
+        n.destNode = 0x05
+        n.errorCode = 0x01
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x08, 0x05, 0x01]))
+
+    def test_TwoWayConnectionBuildResponseSuccess(self):
+        n = canfix.TwoWayConnection()
+        n.sendNode = 0x03
+        n.destNode = 0x05
+        n.errorCode = 0x00
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x08, 0x05, 0x00]))
+
 
 # TODO Test default destination node
-# TODO Check STR outputs for requests and responses
-# TODO Test Two-Way Connection Request
+# TODO Check __str__ outputs for requests and responses
 # TODO Test Node Configuration Set / Query Messages
 # TODO Test Node Description Message
 # TODO Test Parameter Set Message

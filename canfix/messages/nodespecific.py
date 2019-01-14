@@ -648,7 +648,7 @@ class UpdateFirmware(NodeSpecific):
         if verification >= 1 and verification <= 0xFFFF:
             self.__verification = verification
         else:
-            raise ValueError("Invalid Node Number Given")
+            raise ValueError("Invalid Verification Code Given")
         self.msgType = MSG_REQUEST
 
     def getVerification(self):
@@ -662,15 +662,14 @@ class UpdateFirmware(NodeSpecific):
         self.__channel = channel
         self.msgType = MSG_REQUEST
 
-
     def getChannel(self):
         return self.__channel
 
     channel = property(getChannel, setChannel)
 
     def setErrorCode(self, errorCode):
-        if errorCode <0 or errorCode > 15:
-            raise ValueError("Invalid Channel Given")
+        if errorCode <0 or errorCode > 255:
+            raise ValueError("Invalid Error Given")
         self.__error = errorCode
         self.msgType = MSG_RESPONSE
         if self.__error == 0x00:
@@ -678,12 +677,10 @@ class UpdateFirmware(NodeSpecific):
         else:
             self.status = MSG_FAIL
 
-
     def getErrorCode(self):
         return self.__error
 
     errorCode = property(getErrorCode, setErrorCode)
-
 
     def __str__(self):
         s = "[" + str(self.sendNode) + "]"
@@ -693,5 +690,116 @@ class UpdateFirmware(NodeSpecific):
             s += ": Verification Code={}".format(self.verification)
             s += ": Channel={}".format(self.channel)
         else:
-            s += ": Success Response"
+            if self.errorCode:
+                s += ": Error Response, Code = {}".format(self.errorCode)
+            else:
+                s += ": Success Response"
+        return s
+
+
+class TwoWayConnection(NodeSpecific):
+    def __init__(self, msg=None, node=None, connectionType=0x0000, channel=None):
+        if msg != None:
+            self.setMessage(msg)
+        else:
+            self.controlCode = 0x08
+            self.msgType = MSG_RESPONSE
+            self.sendNode = None
+            self.destNode = None
+            if channel is not None: self.channel = channel
+            if connectionType is not None: self.connectionType = connectionType
+
+    def setMessage(self, msg):
+        log.debug(str(msg))
+        self.sendNode = msg.arbitration_id - start_id
+        self.controlCode = msg.data[0]
+        assert self.controlCode == 0x08
+        self.destNode = msg.data[1]
+
+        if msg.dlc == 3:
+            self.msgType = MSG_RESPONSE
+            self.errorCode = msg.data[2]
+            if self.errorCode == 0x00:
+                self.status = MSG_SUCCESS
+            else:
+                self.status = MSG_FAIL
+        elif msg.dlc == 5:
+            self.msgType = MSG_REQUEST
+            self.channel = msg.data[2]
+            self.connectionType = msg.data[3] + (msg.data[4]<<8)
+        else:
+            raise MsgSizeError("Message size is incorrect")
+
+    def getMessage(self):
+        msg = can.Message(arbitration_id=self.sendNode + start_id, extended_id=False)
+        msg.data = self.data
+        msg.dlc = len(msg.data)
+        return msg
+
+    msg = property(getMessage, setMessage)
+
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.destNode)
+        if self.msgType == MSG_RESPONSE:
+            data.append(self.errorCode)
+        elif self.msgType == MSG_REQUEST:
+            data.append(self.channel)
+            data.append(self.connectionType % 256)
+            data.append(self.connectionType >> 8)
+        return data
+
+    data = property(getData)
+
+    def setConnectionType(self, connectionType):
+        if connectionType >= 0 and connectionType <= 0xFFFF:
+            self.__connectionType = connectionType
+        else:
+            raise ValueError("Invalid Connection Type Given")
+        self.msgType = MSG_REQUEST
+
+    def getConnectionType(self):
+        return self.__connectionType
+
+    connectionType = property(getConnectionType, setConnectionType)
+
+    def setChannel(self, channel):
+        if channel <0 or channel > 15:
+            raise ValueError("Invalid Channel Given")
+        self.__channel = channel
+        self.msgType = MSG_REQUEST
+
+    def getChannel(self):
+        return self.__channel
+
+    channel = property(getChannel, setChannel)
+
+    def setErrorCode(self, errorCode):
+        if errorCode <0 or errorCode > 255:
+            raise ValueError("Invalid Error Given")
+        self.__error = errorCode
+        self.msgType = MSG_RESPONSE
+        if self.__error == 0x00:
+            self.status = MSG_SUCCESS
+        else:
+            self.status = MSG_FAIL
+
+    def getErrorCode(self):
+        return self.__error
+
+    errorCode = property(getErrorCode, setErrorCode)
+
+    def __str__(self):
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
+        if self.msgType == MSG_REQUEST:
+            s += ": Connection Type={}".format(self.connectionType)
+            s += ": Channel={}".format(self.channel)
+        else:
+            if self.errorCode:
+                s += ": Error Response, Code = {}".format(self.errorCode)
+            else:
+                s += ": Success Response"
         return s
