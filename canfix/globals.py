@@ -29,3 +29,6 @@ MSG_FAIL =     0xFF
 
 class MsgSizeError(Exception):
     pass
+
+class TypeMissingError(Exception):
+    pass

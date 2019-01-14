@@ -48,6 +48,8 @@ def parseMessage(msg):
             return EnableParameter(msg)
         elif msg.data[0] == 0x05:
             return NodeReport(msg)
+        elif msg.data[0] == 0x06:
+            return NodeStatus(msg)
         else:
             return NodeSpecific(msg) #TODO This should probably be an error
     elif msg.arbitration_id < 2048:

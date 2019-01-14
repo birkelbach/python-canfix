@@ -492,7 +492,7 @@ class TestNodeReport(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_EnableParameterMessageRequest(self):
+    def test_NodeReportMessageRequest(self):
         d = bytearray([0x05, 0x04])
         msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         p = canfix.parseMessage(msg)
@@ -501,16 +501,64 @@ class TestNodeReport(unittest.TestCase):
         self.assertEqual(p.controlCode, 0x05)
         self.assertEqual(p.destNode, 0x04)
 
-    def test_EnableParameterBuildRequest(self):
+    def test_NodeReportBuildRequest(self):
         n = canfix.NodeReport()
         n.sendNode = 0x03
         n.destNode = 0x01
         self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
         self.assertEqual(n.msg.data, bytearray([0x05, 0x01]))
 
+
+class TestNodeStatus(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_NodeStatusMessage(self):
+        d = bytearray([0x06, 0x00, 0x00, 0x00, 0x00])
+        msg = can.Message(extended_id=False, arbitration_id=0x6E2, data=d)
+        p = canfix.parseMessage(msg)
+        p.type = "WORD"
+        self.assertIsInstance(p, canfix.NodeStatus)
+        self.assertEqual(p.sendNode, 0x02)
+        self.assertEqual(p.controlCode, 0x06)
+        self.assertEqual(p.parameter, 0x00)
+        self.assertEqual(p.value, [False]*16)
+
+    def test_NodeStatusBuild(self):
+        n = canfix.NodeStatus()
+        n.sendNode = 0x03
+        n.parameter = 1 # Internal Temperature
+        n.value = 65.3
+        self.assertEqual(n.type, "INT")
+        self.assertEqual(n.multiplier, 0.1)
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x06, 0x01, 0x00, 0x8D, 0x02]))
+
+    def test_NodeSpecificAllParametersBuild(self):
+        wordval = [False]*16
+        wordval[2] = True
+        wordval[15] = True
+        # Parameter, Value, Result
+        tests = ((0x00, wordval, [0x04, 0x80]),
+                 (0x01, 73.2, [0xDC, 0x02]),
+                 (0x02, 234567, [0x47, 0x94, 0x03, 0x00]),
+                 (0x03, 876543, [0xFF, 0x5F, 0x0D, 0x00]),
+                 (0x04, 14.2, [0x8E, 0x00]),
+                 (0x05, 123456789, [0x15, 0xCD, 0x5B, 0x07])
+                )
+        n = canfix.NodeStatus()
+        n.sendNode = 0x04
+        for each in tests:
+            n.parameter = each[0]
+            n.value = each[1]
+            tr = bytearray([0x06, each[0], 0x00])
+            tr.extend(each[2])
+            self.assertEqual(n.msg.data, tr)
+
+
+
 # TODO Test default destination node
 # TODO Check STR outputs for requests and responses
-# TODO Test Node Specific Messages
 # TODO Test Firmware Update Messages
 # TODO Test Two-Way Connection Request
 # TODO Test Node Configuration Set / Query Messages

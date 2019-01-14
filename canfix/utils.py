@@ -25,6 +25,7 @@ def getTypeSize(datatype):
     table = {"BYTE":1, "WORD":2, "SHORT":1, "USHORT":1, "UINT":2,
              "INT":2, "DINT":4, "UDINT":4, "FLOAT":4, "CHAR":1}
     return table[datatype]
+# TODO: Make this work with compound data types and arrays
 
 
 # This function takes the bytearray that is in data and converts it into a value.
@@ -101,7 +102,8 @@ def pack(datatype, value, multiplier):
     return x
 
 
-# This function takes the data type, a byte array of data and
+# This function takes the data type, a byte array of data and the multiplier
+# and converts that data to the proper types and returns the value.
 def getValue(datatype, data, multiplier = 1.0):
     dtypes = datatype.split(',')
     result = []
@@ -128,7 +130,8 @@ def getValue(datatype, data, multiplier = 1.0):
     else:
         return result
 
-
+# This function takes a datatype string a value and multiplier.  It converts
+# the value to a bytearray based on the datatypes and returns that array.
 def setValue(datatype, value, multiplier=1.0):
     dtypes = datatype.split(',')
     x = bytearray([])
