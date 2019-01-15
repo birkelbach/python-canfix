@@ -688,7 +688,8 @@ class TestTwoWayConnection(unittest.TestCase):
 
 
 # TODO Test default destination node
-# TODO Check __str__ outputs for requests and responses
+# TODO Test __str__ outputs for requests and responses
+# TODO Test error code strings
 # TODO Test Node Configuration Set / Query Messages
 # TODO Test Node Description Message
 # TODO Test Parameter Set Message

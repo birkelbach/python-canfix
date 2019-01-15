@@ -19,11 +19,7 @@
 #  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 from .globals import *
-from .messages.nodealarm import NodeAlarm
-from .messages.parameter import Parameter
-from .messages.twoway import TwoWayMsg
-from .messages.nodespecific import *
-
+from .messages import *
 
 def parseMessage(msg):
     """Determine what type of CAN-FIX msg this is and return an object
