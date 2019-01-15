@@ -524,13 +524,13 @@ class NodeStatus(NodeSpecific):
         self.parameter = (msg.data[2] * 256) + msg.data[1]
         self.valueData = msg.data[3:]
         # TODO: Re-enable this check once getTypeSize can deal with compound data typesl
-        # try:
-        #     ts = utils.getTypeSize(self.type)
-        # except KeyError:
-        #     ts = None
-        # if ts:
-        #     if msg.dlc != (3 + ts):
-        #         raise MsgSizeError("Message size is incorrect")
+        try:
+            ts = utils.getTypeSize(self.type)
+        except KeyError:
+            ts = None
+        if ts:
+            if msg.dlc != (3 + ts):
+                raise MsgSizeError("Message size is incorrect")
         if msg.dlc < 3:
             raise MsgSizeError("Message size is incorrect")
 

@@ -24,8 +24,16 @@ def getTypeSize(datatype):
     """Return the size of the CAN-FIX datatype in bytes"""
     table = {"BYTE":1, "WORD":2, "SHORT":1, "USHORT":1, "UINT":2,
              "INT":2, "DINT":4, "UDINT":4, "FLOAT":4, "CHAR":1}
-    return table[datatype]
-# TODO: Make this work with compound data types and arrays
+
+    dtypes = datatype.split(',')
+    x = 0
+    for dtype in dtypes:
+        if '[' in dtype:
+            y = dtype.strip(']').split('[')
+            x += table[y[0]] * int(y[1])
+        else:
+            x += table[dtype]
+    return x
 
 
 # This function takes the bytearray that is in data and converts it into a value.
