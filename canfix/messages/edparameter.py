@@ -21,7 +21,6 @@
 import can
 from ..globals import *
 from ..protocol import getParameterByName
-from .. import utils
 from .nodespecific import NodeSpecific
 
 
