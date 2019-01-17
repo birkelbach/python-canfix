@@ -22,54 +22,45 @@ import can
 from ..globals import *
 from ..protocol import getParameterByName
 from .. import utils
+from .nodespecific import NodeSpecific
 
-
-class NodeSpecific(object):
-    """Represents a generic Node Specific Message"""
-    codes = ["Node Identification", "Bit Rate Set", "Node ID Set", "Disable Parameter",
-             "Enable Parameter", "Node Report", "Node Status", "Update Firmware",
-             "Connection Request", "Node Configuration Set", "Node Configuration Query",
-             "Node Description", "Parameter Set 0", "Parameter Set 32", "Parameter Set 64",
-             "Parameter Set 96", "Parameter Set 128", "Parameter Set 160", "Parameter Set 192",
-             "Parameter Set 224"]
-    start_id = 0x6E0
-
-    def __init__(self, msg=None):
+class NodeReport(NodeSpecific):
+    def __init__(self, msg=None, newNode=None):
         if msg != None:
             self.setMessage(msg)
         else:
-            self.controlCode = 0
-            self.data = bytearray([])
+            self.controlCode = 0x05
+            self.sendNode = None
+            self.destNode = None
 
     def setMessage(self, msg):
         log.debug(str(msg))
         self.sendNode = msg.arbitration_id - self.start_id
         self.controlCode = msg.data[0]
-        #self.destNode = msg.data[1]
-        self.data = msg.data[1:]
+        assert self.controlCode == 0x05
+        self.destNode = msg.data[1]
+
+        if msg.dlc != 2:
+            raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
         msg = can.Message(arbitration_id=self.sendNode + self.start_id, extended_id=False)
-        msg.data.append(self.controlCode)
-        #msg.data.append(self.destNode)
-        for each in self.data:
-            msg.data.append(each)
+        msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
 
     msg = property(getMessage, setMessage)
 
+    def getData(self):
+        data = bytearray([])
+        data.append(self.controlCode)
+        data.append(self.destNode)
+        return data
+
+    data = property(getData)
+
     def __str__(self):
-        s = "[{}] ".format(str(self.sendNode))
-        try:
-            s += self.codes[self.controlCode]
-        except IndexError:
-            if self.controlCode < 128:
-                s += "Reserved NSM "
-            else:
-                s += "User Defined NSM "
-            s += str(self.controlCode)
-        for each in self.data:
-            s += " 0x{:02x}".format(each)
-            #s += hex(each)
+        s = "[" + str(self.sendNode) + "]"
+        s += "->[" + str(self.destNode) + "] "
+        s += self.codes[self.controlCode]
         return s

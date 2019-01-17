@@ -22,3 +22,12 @@ from .nodealarm import NodeAlarm
 from .parameter import Parameter
 from .twoway import TwoWayMsg
 from .nodespecific import *
+from .nodeidentification import NodeIdentification
+from .bitrateset import BitRateSet
+from .nodeidset import NodeIDSet
+from .edparameter import DisableParameter, EnableParameter
+from .nodereport import NodeReport
+from .nodestatus import NodeStatus
+from .updatefirmware import UpdateFirmware
+from .twowayconnection import TwoWayConnection
+from .nodeconfiguration import NodeConfigurationSet, NodeConfigurationQuery
