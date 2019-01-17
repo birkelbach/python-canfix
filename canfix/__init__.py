@@ -50,6 +50,10 @@ def parseMessage(msg):
             return UpdateFirmware(msg)
         elif msg.data[0] == 0x08:
             return TwoWayConnection(msg)
+        elif msg.data[0] == 0x09:
+            return NodeConfigurationSet(msg)
+        elif msg.data[0] == 0x0A:
+            return NodeConfigurationQuery(msg)
         else:
             return NodeSpecific(msg) #TODO This should probably be an error
     elif msg.arbitration_id < 2048:
