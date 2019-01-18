@@ -23,23 +23,30 @@ from ..globals import *
 from .. import utils
 from .nodespecific import NodeSpecific
 
-class NodeReport(NodeSpecific):
-    def __init__(self, msg=None):
+class NodeDescription(NodeSpecific):
+    def __init__(self, msg=None, packetnumber=0x00, chars=None):
         if msg != None:
             self.setMessage(msg)
         else:
-            self.controlCode = 0x05
+            self.controlCode = 0x0B
             self.sendNode = None
             self.destNode = None
+            self.packetnumber = 0x00
+            if chars:
+                self.chars = bytearray(chars)
+            else:
+                self.chars = bytearray([0x00]*4)
 
     def setMessage(self, msg):
         log.debug(str(msg))
         self.sendNode = msg.arbitration_id - self.start_id
         self.controlCode = msg.data[0]
-        assert self.controlCode == 0x05
+        assert self.controlCode == 0x0B
         self.destNode = msg.data[1]
+        self.packetnumber = msg.data[3] * 256 + msg.data[2]
+        self.chars = msg.data[4:]
 
-        if msg.dlc != 2:
+        if msg.dlc < 8:
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
@@ -54,6 +61,9 @@ class NodeReport(NodeSpecific):
         data = bytearray([])
         data.append(self.controlCode)
         data.append(self.destNode)
+        data.append(self.packetnumber % 265)
+        data.append(self.packetnumber >> 8)
+        data.extend(bytearray(self.chars[0:4], 'utf8'))
         return data
 
     data = property(getData)

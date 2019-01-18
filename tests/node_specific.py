@@ -854,6 +854,28 @@ class TestParameterSet(unittest.TestCase):
         self.assertEqual(n.msg.data, bytearray([0x0d, 0x00, 0x1D, 0xFB, 0x07]))
 
 
+class TestNodeDescription(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_NodeDescriptionMessage(self):
+        d = bytearray([0x0B, 0x04, 0x01, 0x00, ord('A'), ord('B'), ord('C'), ord('D')])
+        msg = can.Message(extended_id=False, arbitration_id=0x6E2, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.NodeDescription)
+        self.assertEqual(p.sendNode, 0x02)
+        self.assertEqual(p.destNode, 0x04)
+        self.assertEqual(p.packetnumber, 1)
+        self.assertEqual(p.chars, bytearray([ord('A'), ord('B'), ord('C'), ord('D')]))
+
+    def test_ParameterSetBuild(self):
+        n = canfix.NodeDescription()
+        n.sendNode = 0x03
+        n.destNode = 0x04
+        n.packetnumber = 0x13
+        n.chars = "ABCD"
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x0B, 0x04, 0x13, 0x00, ord('A'), ord('B'), ord('C'), ord('D')]))
 
 # TODO Test default destination node
 # TODO Test __str__ outputs for requests and responses

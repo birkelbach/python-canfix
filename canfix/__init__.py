@@ -54,6 +54,8 @@ def parseMessage(msg):
             return NodeConfigurationSet(msg)
         elif msg.data[0] == 0x0A:
             return NodeConfigurationQuery(msg)
+        elif msg.data[0] == 0x0B:
+            return NodeDescription(msg)
         elif msg.data[0] >= 0x0C and msg.data[0] <= 0x13:
             return ParameterSet(msg)
         else:
