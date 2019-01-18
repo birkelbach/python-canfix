@@ -812,12 +812,53 @@ class TestConfigurationQuery(unittest.TestCase):
         self.assertEqual(n.msg.data, bytearray([0x0A, 0x05, 0x01]))
 
 
+class TestParameterSet(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_ParameterSetMessage(self):
+        d = bytearray([0x0C, 0x83, 0x19, 0x0F, 0x27])
+        msg = can.Message(extended_id=False, arbitration_id=0x6E2, data=d)
+        p = canfix.parseMessage(msg)
+        self.assertIsInstance(p, canfix.ParameterSet)
+        self.assertEqual(p.sendNode, 0x02)
+        self.assertEqual(p.index, 3)
+        self.assertEqual(p.type, "UINT")
+        self.assertEqual(p.multiplier, 0.1)
+        self.assertTrue(abs(p.value - 999.9) < 0.1)
+
+    def test_ParameterSetIndexCalc(self):
+        for i in range(256):
+            cc = (i // 32) + 0x0C
+            x = (i % 32) << 11 | 0x183
+            d = bytearray([cc, x % 256, x >> 8, 0x0F, 0x27])
+            msg = can.Message(extended_id=False, arbitration_id=0x6E2, data=d)
+            p = canfix.parseMessage(msg)
+            self.assertIsInstance(p, canfix.ParameterSet)
+            self.assertEqual(p.sendNode, 0x02)
+            self.assertEqual(p.index, i)
+
+    def test_ParameterSetBuild(self):
+        n = canfix.ParameterSet(parameter="Indicated Airspeed")
+        n.sendNode = 0x03
+        n.value = 65.3
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x0C, 0x83, 0x01, 0x8D, 0x02]))
+
+    def test_ParameterSetBuildIndexCalc(self):
+        n = canfix.ParameterSet(parameter="Cylinder Head Temperature #1")
+        n.sendNode = 0x34
+        n.value = 204.3
+        n.index = 35
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x34)
+        self.assertEqual(n.msg.data, bytearray([0x0d, 0x00, 0x1D, 0xFB, 0x07]))
+
+
 
 # TODO Test default destination node
 # TODO Test __str__ outputs for requests and responses
 # TODO Test error code strings
 # TODO Test Node Description Message
-# TODO Test Parameter Set Message
 
 
 if __name__ == '__main__':

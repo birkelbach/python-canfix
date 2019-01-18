@@ -31,3 +31,4 @@ from .nodestatus import NodeStatus
 from .updatefirmware import UpdateFirmware
 from .twowayconnection import TwoWayConnection
 from .nodeconfiguration import NodeConfigurationSet, NodeConfigurationQuery
+from .parameterset import ParameterSet

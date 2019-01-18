@@ -54,6 +54,8 @@ def parseMessage(msg):
             return NodeConfigurationSet(msg)
         elif msg.data[0] == 0x0A:
             return NodeConfigurationQuery(msg)
+        elif msg.data[0] >= 0x0C and msg.data[0] <= 0x13:
+            return ParameterSet(msg)
         else:
             return NodeSpecific(msg) #TODO This should probably be an error
     elif msg.arbitration_id < 2048:

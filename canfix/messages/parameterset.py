@@ -21,25 +21,23 @@
 import can
 from ..globals import *
 from .. import utils
+from ..protocol import parameters, getParameterByName
 from .nodespecific import NodeSpecific
 
 
-class NodeStatus(NodeSpecific):
-    # These are the defined types in the protocol.  The parameter would be
-    # used to index this list.  For others the type would have to be set before
-    # the value accessed.
-    knownTypes = (("WORD",1), ("INT",0.1), ("UDINT",1), ("UDINT",1), ("INT",0.1), ("UDINT",1))
-    def __init__(self, msg=None, parameter=None, value=None, datatype=None, multiplier=1.0):
+class ParameterSet(NodeSpecific):
+    def __init__(self, msg=None, parameter=None, value=None, datatype=None, multiplier=1.0, index=0):
         if msg != None:
             self.setMessage(msg)
         else:
-            self.controlCode = 0x06
+            self.controlCode = 0x0B
             self.sendNode = None
+            self.multiplier = multiplier
             self.parameter = parameter
+            self.index = index
             if value != None:
                 self.value = value
 
-        self.multiplier = multiplier
         if datatype != None:
             self.type =  datatype
 
@@ -48,8 +46,10 @@ class NodeStatus(NodeSpecific):
         log.debug(str(msg))
         self.sendNode = msg.arbitration_id - self.start_id
         self.controlCode = msg.data[0]
-        assert self.controlCode == 0x06
-        self.parameter = (msg.data[2] * 256) + msg.data[1]
+        assert self.controlCode >= 0x0C
+        assert self.controlCode <= 0x13
+        self.parameter = ((msg.data[2] * 256) + msg.data[1]) & 0x07FF
+        self.index = (self.controlCode - 0x0C)*32 + (msg.data[2] >> 3)
         self.valueData = msg.data[3:]
         try:
             ts = utils.getTypeSize(self.type)
@@ -73,26 +73,39 @@ class NodeStatus(NodeSpecific):
         if parameter == None:
             self.__parameter = None
             return
-        if parameter < 0 or parameter > 65535:
-            raise ValueError("Paremeter Type must be between 0 and 65535")
-        self.__parameter = parameter
-        if self.__parameter < len(self.knownTypes):
-            self.type = self.knownTypes[self.__parameter][0]
-            self.multiplier = self.knownTypes[self.__parameter][1]
+        if type(parameter) == int:
+            if parameter < 256 or parameter > 1759:
+                raise ValueError("Paremeter Type must be between 256 and 1759")
+            self.__parameter = parameter
         else:
-            self.type = None # This'll cause an error somewhere.
-            self.multiplier = 1
+            p = getParameterByName(parameter)
+            self.__parameter = p.id
+        self.type = parameters[self.__parameter].type
+        self.multiplier = parameters[self.__parameter].multiplier
 
     def getParameter(self):
         return self.__parameter
 
     parameter = property(getParameter, setParameter)
 
+    def setIndex(self, index):
+        if index < 0 or index >= 256:
+            raise ValueError("Index must be between 0 and 255")
+        self.__index = index
+        self.controlCode = (index // 32) + 0x0C
+
+
+    def getIndex(self):
+        return self.__index
+
+    index = property(getIndex, setIndex)
+
     def getData(self):
         data = bytearray([])
         data.append(self.controlCode)
-        data.append(self.__parameter % 256)
-        data.append(self.__parameter >> 8)
+        x = (self.index % 32) << 11 | self.parameter
+        data.append(x % 256)
+        data.append(x >> 8)
         data.extend(self.valueData)
         return data
 
