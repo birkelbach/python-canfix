@@ -110,9 +110,10 @@ def pack(datatype, value, multiplier):
     return x
 
 
-# This function takes the data type, a byte array of data and the multiplier
-# and converts that data to the proper types and returns the value.
+
 def getValue(datatype, data, multiplier = 1.0):
+    """Takes the data type, a byte array of data and the multiplier
+       and converts that data to the proper types and returns the value."""
     dtypes = datatype.split(',')
     result = []
     i = 0  #This is to keep track of the index into data[]
@@ -138,9 +139,10 @@ def getValue(datatype, data, multiplier = 1.0):
     else:
         return result
 
-# This function takes a datatype string a value and multiplier.  It converts
-# the value to a bytearray based on the datatypes and returns that array.
+
 def setValue(datatype, value, multiplier=1.0):
+    """This function takes a datatype string a value and multiplier.  It converts
+       the value to a bytearray based on the datatypes and returns that array."""
     dtypes = datatype.split(',')
     x = bytearray([])
     if len(dtypes) == 1:

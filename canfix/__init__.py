@@ -22,8 +22,16 @@ from .globals import *
 from .messages import *
 
 def parseMessage(msg):
-    """Determine what type of CAN-FIX msg this is and return an object
-       that represents that msg type properly.  Returns None on error"""
+    """Determines the type of CAN-FIX msg
+
+    This function takes a CAN message and determines what type of CAN-FIX
+    message it is and returns an object that represents that CAN-FIX message.
+
+    :param msg: The CAN message to parse.
+    :type msg: can.Message
+    :returns:  A message object.
+
+    """
     log.debug("Parsing message with ID = 0x{0:03X}".format(msg.arbitration_id))
     if msg.arbitration_id == 0: # Undefined
         return None
