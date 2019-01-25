@@ -26,20 +26,27 @@ from .nodespecific import NodeSpecific
 
 
 class ParameterSet(NodeSpecific):
-    def __init__(self, msg=None, parameter=None, value=None, datatype=None, multiplier=1.0, index=0):
+    def __init__(self, msg=None, parameter=None, value=None, datatype=None, multiplier=None, index=0):
         if msg != None:
             self.setMessage(msg)
         else:
             self.controlCode = 0x0B
             self.sendNode = None
-            self.multiplier = multiplier
             self.parameter = parameter
             self.index = index
-            if value != None:
-                self.value = value
+        # If this is a predefined parameter we can automatically set the
+        # multiplier and the datatype
+        if self.parameter in parameters:
+            self.multiplier = parameters[self.parameter].multiplier
+            self.type = parameters[self.parameter].type
 
+        # If we really, really want to set these then we can
+        if multiplier != None:
+            self.multiplier = multiplier
         if datatype != None:
             self.type =  datatype
+        if value != None:
+            self.value = value
 
 
     def setMessage(self, msg):
@@ -123,7 +130,10 @@ class ParameterSet(NodeSpecific):
 
 
     def __str__(self):
-        s = "[" + str(self.sendNode) + "]"
-        s += "->[" + str(self.destNode) + "] "
-        s += self.codes[self.controlCode]
+        s = "[" + str(self.sendNode) + "] "
+        s += self.codes[self.controlCode] + " "
+        if self.parameter in parameters:
+            s += parameters[self.parameter].name
+        s += "({})".format(hex(self.parameter))
+        s += " = {}".format(self.value)
         return s
