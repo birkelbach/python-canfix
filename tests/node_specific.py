@@ -140,6 +140,11 @@ class TestNodeIdentification(unittest.TestCase):
         msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
         with self.assertRaises(canfix.MsgSizeError):
             p = canfix.parseMessage(msg)
+        d = bytearray([0x00])
+        msg = can.Message(extended_id=False, arbitration_id=0x6E1, data=d)
+        with self.assertRaises(canfix.MsgSizeError):
+            p = canfix.parseMessage(msg)
+
 
     def test_NodeIdentificationBuildResponse(self):
         n = canfix.NodeIdentification(device=12, fwrev=22, model=76543)

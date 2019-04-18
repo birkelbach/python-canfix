@@ -40,10 +40,11 @@ class NodeIdentification(NodeSpecific):
         self.sendNode = msg.arbitration_id - self.start_id
         self.controlCode = msg.data[0]
         assert self.controlCode == 0x00
-        self.destNode = msg.data[1]
         if msg.dlc == 2:
+            self.destNode = msg.data[1]
             self.msgType = MSG_REQUEST
         elif msg.dlc == 8:
+            self.destNode = msg.data[1]
             self.msgType = MSG_RESPONSE
             self.device = msg.data[3]
             self.fwrev = msg.data[4]
