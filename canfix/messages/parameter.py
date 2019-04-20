@@ -225,18 +225,23 @@ class Parameter(object):
                 return str(self.value)
 
 
-    def __cmp__(self, other):
-        if self.__identifier < other.__identifier:
-            return -1
-        elif self.__identifier > other.__identifier:
-            return 1
-        else:
-            if self.index < other.index:
-                return -1
-            elif self.index > other.index:
-                return 1
-            else:
-                return 0
+    def __eq__(self, other):
+        return (self.__identifier*16 + self.index) == (other.__identifier*16 + other.index)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __lt__(self, other):
+        return (self.__identifier*16 + self.index) < (other.__identifier*16 + other.index)
+
+    def __le__(self, other):
+        return (self.__identifier*16 + self.index) <= (other.__identifier*16 + other.index)
+
+    def __gt__(self, other):
+        return (self.__identifier*16 + self.index) > (other.__identifier*16 + other.index)
+
+    def __ge__(self, other):
+        return (self.__identifier*16 + self.index) >= (other.__identifier*16 + other.index)
 
 
     def __str__(self):
