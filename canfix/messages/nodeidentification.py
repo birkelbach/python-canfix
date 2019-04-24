@@ -31,9 +31,9 @@ class NodeIdentification(NodeSpecific):
             self.msgType = MSG_REQUEST
             self.sendNode = None
             self.destNode = None
-            if device is not None: self.device = device
-            if fwrev is not None: self.fwrev = fwrev
-            if model is not None: self.model = model
+            self.device = device
+            self.fwrev = fwrev
+            self.model = model
 
     def setMessage(self, msg):
         log.debug(str(msg))
@@ -75,11 +75,14 @@ class NodeIdentification(NodeSpecific):
     data = property(getData)
 
     def setDevice(self, device):
-        if device > 255 or device < 0:
-            raise ValueError("Device ID must be between 0 and 255")
+        if device is None:
+            self.__device = None
         else:
-            self.__device = device
-            self.msgType = MSG_RESPONSE
+            if device > 255 or device < 0:
+                raise ValueError("Device ID must be between 0 and 255")
+            else:
+                self.__device = device
+                self.msgType = MSG_RESPONSE
 
     def getDevice(self):
         return self.__device
@@ -87,11 +90,14 @@ class NodeIdentification(NodeSpecific):
     device = property(getDevice, setDevice)
 
     def setFwrev(self, fwrev):
-        if fwrev > 255 or fwrev < 0:
-            raise ValueError("Firmware Revision must be between 0 and 255")
+        if fwrev is None:
+            self.__fwrev = None
         else:
-            self.__fwrev = fwrev
-            self.msgType = MSG_RESPONSE
+            if fwrev > 255 or fwrev < 0:
+                raise ValueError("Firmware Revision must be between 0 and 255")
+            else:
+                self.__fwrev = fwrev
+                self.msgType = MSG_RESPONSE
 
 
     def getFwrev(self):
@@ -100,11 +106,14 @@ class NodeIdentification(NodeSpecific):
     fwrev = property(getFwrev, setFwrev)
 
     def setModel(self, model):
-        if model < 0 or model > 0xFFFFFF:
-            raise ValueError("Model must be between 0 and 0xFFFFFF")
+        if model is None:
+            self.__model = None
         else:
-            self.__model = model
-            self.msgType = MSG_RESPONSE
+            if model < 0 or model > 0xFFFFFF:
+                raise ValueError("Model must be between 0 and 0xFFFFFF")
+            else:
+                self.__model = model
+                self.msgType = MSG_RESPONSE
 
     def getModel(self):
         return self.__model
@@ -115,7 +124,7 @@ class NodeIdentification(NodeSpecific):
         s = "[" + str(self.sendNode) + "]"
         s += "->[" + str(self.destNode) + "] "
         s += self.codes[self.controlCode]
-        s += ": device={}".format(self.device)
-        s += ", fwrev={}".format(self.fwrev)
-        s += ", model={}".format(self.model)
+#        s += ": device={}".format(self.device)
+#        s += ", fwrev={}".format(self.fwrev)
+#        s += ", model={}".format(self.model)
         return s

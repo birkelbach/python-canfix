@@ -1,0 +1,5 @@
+Fix valueStr function to not print .0000000000000001 when the float is a bit off
+
+Test valueStr functions for all different types of values.
+
+Test __str__ functions and make all of them consistent

@@ -30,7 +30,8 @@ class UpdateFirmware(NodeSpecific):
             self.controlCode = 0x07
             self.msgType = MSG_RESPONSE
             self.sendNode = None
-            self.destNode = None
+            self.destNode = node
+            self.errorCode = 0x00
             if verification is not None: self.verification = verification
             if channel is not None: self.channel = channel
 

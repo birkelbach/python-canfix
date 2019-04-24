@@ -17,3 +17,6 @@ package.
 
 .. automodule:: canfix.messages
    :members:
+
+.. automodule:: canfix.messages.nodealarm
+   :members:
