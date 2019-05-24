@@ -27,7 +27,6 @@ from .nodespecific import NodeSpecific
 class NodeConfigurationSet(NodeSpecific):
     def __init__(self, msg=None, key=None, value=None, datatype=None, multiplier=1.0):
         self.multiplier = multiplier
-        #if datatype != None:
         self.datatype = datatype
         if msg != None:
             self.setMessage(msg)
@@ -103,7 +102,7 @@ class NodeConfigurationSet(NodeSpecific):
 
     def setValue(self, value):
         if self.datatype == None:
-            raise TypeMissingError("Node Status data type is not set")
+            raise TypeMissingError("Node Configuration data type is not set")
         self.valueData = utils.setValue(self.datatype, value, self.multiplier)
 
     def getValue(self):
@@ -128,14 +127,15 @@ class NodeConfigurationQuery(NodeSpecific):
         else:
             self.controlCode = 0x0A
             self.sendNode = None
-            if key != None: self.key = key
-            if value != None: self.value = value
-            self.rawdata = bytearray([]*5)
+            self.destNode = None
+            self.key = key
+            self.value = value
+            #self.rawdata = bytearray([]*5)
 
     def setMessage(self, msg):
         log.debug(str(msg))
         self.sendNode = msg.arbitration_id - self.start_id
-        if msg.dlc < 2:
+        if msg.dlc < 3:
             raise MsgSizeError("Message size is incorrect")
 
         self.controlCode = msg.data[0]
@@ -152,7 +152,7 @@ class NodeConfigurationQuery(NodeSpecific):
     msg = property(getMessage, setMessage)
 
     def setKey(self, key):
-        if key == None:
+        if key is None:
             return
         if key < 0 or key > 65535:
             raise ValueError("Key must be between 0 and 65535")
@@ -173,8 +173,10 @@ class NodeConfigurationQuery(NodeSpecific):
     data = property(getData)
 
     def setValue(self, value):
+        if value is None:
+            return
         if self.datatype == None:
-            raise TypeMissingError("Node Status data type is not set")
+            raise TypeMissingError("Node Configuration data type is not set")
         x = utils.setValue(self.datatype, value, self.multiplier)
         self.rawdata = bytearray([0x00])
         self.rawdata.extend(x)
@@ -183,7 +185,7 @@ class NodeConfigurationQuery(NodeSpecific):
         if self.datatype == None:
             raise TypeMissingError("Node Status data type is not set")
         return utils.getValue(self.datatype, self.rawdata[1:], self.multiplier)
-
+        
     value = property(getValue, setValue)
 
     def setError(self, error):

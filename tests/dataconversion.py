@@ -41,6 +41,7 @@ class TestDataConversion(unittest.TestCase):
 
     uint_tests = [(2200,   bytearray([0x98, 0x08]), 1),
                   (0,      bytearray([0x00, 0x00]), 1),
+                  (2000,   bytearray([0xD0, 0x07]), 1),
                   (32767,  bytearray([0xFF, 0x7F]), 1),
                   (65535 , bytearray([0xFF, 0xFF]), 1)]
 

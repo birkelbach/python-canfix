@@ -28,11 +28,13 @@ class NodeAlarm(object):
             self.setMessage(msg)
         else:
             self.data = []
+        self.timestamp = 0.0
 
     def setMessage(self, msg):
         self.node = msg.arbitration_id
         if len(msg.data) < 2:
             raise ValueError("Node Alarm message missing alarm code")
+        self.timestamp = msg.timestamp
         self.alarm = msg.data[0] + msg.data[1]*256
         self.data = msg.data[2:]
         self.data.extend(bytearray(5-len(self.data))) # Pad data with zeros
