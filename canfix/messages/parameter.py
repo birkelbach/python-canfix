@@ -219,11 +219,10 @@ class Parameter(object):
         elif self.__identifier == 0x581: #Date
             return "%i-%i-%i" % (self.value[0], self.value[1], self.value[2])
         else:
-            valstr = str(self.value)
             if self.units:
-                return valstr + " " + self.units
+                return "{:g} {}".format(self.value, self.units)
             else:
-                return valstr
+                return str(self.value)
 
 
     def __eq__(self, other):
