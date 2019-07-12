@@ -729,6 +729,13 @@ class TestConfigurationSet(unittest.TestCase):
         self.assertEqual(p.status, canfix.MSG_SUCCESS)
         self.assertEqual(p.errorCode, 0)
 
+    def test_NodeConfigurationSetResponseBuild(self):
+        n = canfix.NodeConfigurationSet()
+        n.sendNode = 0x03
+        n.destNode = 0x05
+        self.assertEqual(n.msg.arbitration_id, 0x6E0+0x03)
+        self.assertEqual(n.msg.data, bytearray([0x09, 0x05, 0x00]))
+
     def test_NodeStatusBuild(self):
         n = canfix.NodeStatus()
         n.sendNode = 0x03

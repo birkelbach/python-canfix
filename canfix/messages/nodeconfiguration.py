@@ -33,6 +33,8 @@ class NodeConfigurationSet(NodeSpecific):
         else:
             self.controlCode = 0x09
             self.sendNode = None
+            self.msgType = MSG_RESPONSE
+            self.errorCode = 0
             self.key = key
             if value != None:
                 self.value = value
@@ -83,6 +85,7 @@ class NodeConfigurationSet(NodeSpecific):
         if key < 0 or key > 65535:
             raise ValueError("Key must be between 0 and 65535")
         self.__key = key
+        self.msgType = MSG_REQUEST
 
     def getKey(self):
         return self.__key
@@ -93,9 +96,12 @@ class NodeConfigurationSet(NodeSpecific):
         data = bytearray([])
         data.append(self.controlCode)
         data.append(self.destNode)
-        data.append(self.__key % 256)
-        data.append(self.__key >> 8)
-        data.extend(self.valueData)
+        if self.msgType == MSG_REQUEST:
+            data.append(self.__key % 256)
+            data.append(self.__key >> 8)
+            data.extend(self.valueData)
+        else:
+            data.append(self.errorCode)
         return data
 
     data = property(getData)
@@ -104,6 +110,7 @@ class NodeConfigurationSet(NodeSpecific):
         if self.datatype == None:
             raise TypeMissingError("Node Configuration data type is not set")
         self.valueData = utils.setValue(self.datatype, value, self.multiplier)
+        self.msgType = MSG_REQUEST
 
     def getValue(self):
         return utils.getValue(self.datatype, self.valueData, self.multiplier)
@@ -185,7 +192,7 @@ class NodeConfigurationQuery(NodeSpecific):
         if self.datatype == None:
             raise TypeMissingError("Node Status data type is not set")
         return utils.getValue(self.datatype, self.rawdata[1:], self.multiplier)
-        
+
     value = property(getValue, setValue)
 
     def setError(self, error):
