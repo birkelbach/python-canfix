@@ -37,7 +37,7 @@ class NodeAlarm(object):
         self.timestamp = msg.timestamp
         self.alarm = msg.data[0] + msg.data[1]*256
         self.data = msg.data[2:]
-        self.data.extend(bytearray(5-len(self.data))) # Pad data with zeros
+        self.data.extend(bytearray(max(0, 5-len(self.data)))) # Pad data with zeros
 
     def getMessage(self):
         msg = can.Message(extended_id=False)

@@ -42,6 +42,8 @@ def getTypeSize(datatype):
 def unpack(datatype, data, multiplier):
     table = {"SHORT":"<b", "USHORT":"<B", "UINT":"<H",
              "INT":"<h", "DINT":"<l", "UDINT":"<L", "FLOAT":"<f"}
+    if len(data) == 0:
+        return None
     x = None
     #This code handles the bit type data types
     if datatype == "BYTE":

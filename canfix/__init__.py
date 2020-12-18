@@ -34,11 +34,13 @@ def parseMessage(msg):
 
     """
     log.debug("Parsing message with ID = 0x{0:03X}".format(msg.arbitration_id))
+    if msg.is_error_frame:
+        return None
     if msg.arbitration_id == 0: # Undefined
         return None
     elif msg.arbitration_id < 256:
         return NodeAlarm(msg)
-    elif msg.arbitration_id < 1760:
+    elif msg.arbitration_id < 1536:
         return Parameter(msg)
     elif msg.arbitration_id < 2016:
         if msg.data[0] == 0x00:

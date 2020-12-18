@@ -28,6 +28,22 @@ class TestParameter(unittest.TestCase):
         p = canfix.parseMessage(msg)
         self.assertEqual(p, None)
 
+    def test_malformed(self):
+        """
+        The following should NOT assert
+        """
+        d = bytearray([0,0,4,0,0,0,0,0])
+        msg = can.Message(extended_id=False, arbitration_id=0xc, data=d)
+        p = canfix.parseMessage(msg)
+
+        d = bytearray([1,2,3,4])
+        msg = can.Message(extended_id=False, arbitration_id=0x123, data=d)
+        p = canfix.parseMessage(msg)
+
+        msg = can.Message(extended_id=False, arbitration_id=0x123, data=[0], is_error_frame=True)
+        p = canfix.parseMessage(msg)
+        self.assertTrue(p is None)
+
     def test_FirstNodeAlarm(self):
         d = bytearray([0x01, 0x00])
         msg = can.Message(extended_id=False, arbitration_id=0x01, data=d)
