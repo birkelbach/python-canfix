@@ -27,6 +27,27 @@ MSG_RESPONSE = 0x02
 MSG_SUCCESS =  0x00
 MSG_FAIL =     0xFF
 
+# From Table 2.1 of CANFIX spec
+#
+# High Priority Node Alarms 1 (0x1) - 255 (0xFF) 255
+# High Priority Pilot Control Inputs 256 (0x100) - 319 (0x13F) 64
+# High Priority Measured Positions 320 (0x140) - 383 (0x17F) 64
+# High Priority Flight Data 384 (0x180) - 447 (0x1BF) 64
+# High Priority Navigation Data 448 (0x1C0) - 511 (0x1FF) 64
+# High Priority Engine / Aircraft System Data 512 (0x200) - 639 (0x27F) 128
+# High Priority Auxiliary Data 640 (0x280) - 767 (0x2FF) 128
+# Normal Priority Pilot Control Inputs 768 (0x300) - 895 (0x37F) 128
+# Normal Priority Measured Positions 896 (0x380) - 1023 (0x3FF) 128
+# Normal Priority Flight Data 1024 (0x400) - 1151 (0x47F) 128
+# Normal Priority Navigation Data 1152 (0x480) - 1279 (0x4FF) 128
+# Normal Priority Engine / Aircraft System Data 1280 (0x500) - 1407 (0x57F) 128
+# Normal Priority Auxiliary Data 1408 (0x580) - 1535 (0x5FF) 128
+# Future 1536 (0x600) - 1759 (0x6DF) 224
+# Node Specific Messages 1760 (0x6E0) - 2015 (0x7DF) 256
+NODE_SPECIFIC_MSGS = 0x6e0
+# Two-Way Connection Channels 2016 (0x7E0) - 2047 (0x7FF) 32
+TWOWAY_CONN_CHANS = 0x7e0
+
 class MsgSizeError(Exception):
     pass
 

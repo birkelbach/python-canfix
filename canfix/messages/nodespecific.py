@@ -31,7 +31,7 @@ class NodeSpecific(object):
              "Node Description", "Parameter Set 0", "Parameter Set 32", "Parameter Set 64",
              "Parameter Set 96", "Parameter Set 128", "Parameter Set 160", "Parameter Set 192",
              "Parameter Set 224"]
-    start_id = 0x6E0
+    start_id = NODE_SPECIFIC_MSGS
 
     def __init__(self, msg=None):
         if msg != None:

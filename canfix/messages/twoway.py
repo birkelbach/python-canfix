@@ -19,6 +19,7 @@
 #  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 import can
+from ..globals import TWOWAY_CONN_CHANS
 
 class TwoWayMsg(object):
     """Represents 2 Way communication channel data"""
@@ -29,7 +30,7 @@ class TwoWayMsg(object):
             self.type = "Request"
 
     def setMessage(self, msg):
-        self.channel = int((msg.arbitration_id - 2016) /2)
+        self.channel = int((msg.arbitration_id - TWOWAY_CONN_CHANS) /2)
         self.data = msg.data
         if msg.arbitration_id % 2 == 0:
             self.type = "Request"
@@ -38,7 +39,7 @@ class TwoWayMsg(object):
 
     def getMessage(self):
         msg = can.Message(extended_id=False)
-        msg.arbitration_id = self.channel*2 + 2016
+        msg.arbitration_id = self.channel*2 + TWOWAY_CONN_CHANS
         if self.type == "Response":
             msg.arbitration_id += 1
         msg.data = self.data

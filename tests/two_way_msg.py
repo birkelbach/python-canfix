@@ -17,6 +17,7 @@
 import unittest
 import canfix
 import can
+from canfix.globals import TWOWAY_CONN_CHANS
 
 class TestTwoWayMessage(unittest.TestCase):
     def setUp(self):
@@ -24,7 +25,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_RequestMessageCh0(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=0x7E0, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -33,7 +34,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_RequestMessageCh1(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=0x7E2, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 2, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -42,15 +43,15 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_RequestMessageCh15(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=0x7FE, data=d)
+        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 14, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
-        self.assertEqual(p.channel, 0x0F)
+        self.assertEqual(p.channel, 7)
         self.assertEqual(p.type,"Request")
 
     def test_RequestMessageCh0NoData(self):
-        msg = can.Message(extended_id=False, arbitration_id=0x7E0)
+        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data,b'')
@@ -85,7 +86,7 @@ class TestTwoWayMessage(unittest.TestCase):
         self.assertEqual(p.type,"Response")
 
     def test_ResponseMessageCh0NoData(self):
-        msg = can.Message(extended_id=False, arbitration_id=0x7E1)
+        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 1)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data,b'')
@@ -98,7 +99,7 @@ class TestTwoWayMessage(unittest.TestCase):
         p.data = bytearray([1, 2, 3, 4, 5, 6, 7, 8])
         p.type = "Request"
         m = p.msg
-        self.assertEqual(m.arbitration_id, 0x7E0)
+        self.assertEqual(m.arbitration_id, TWOWAY_CONN_CHANS)
         self.assertEqual(m.data, bytearray([1, 2, 3, 4, 5, 6, 7, 8]))
 
     def test_CANMessageRequestCh1(self):
@@ -107,7 +108,7 @@ class TestTwoWayMessage(unittest.TestCase):
         p.data = bytearray([1, 2, 3, 4, 5, 6, 7, 8])
         p.type = "Request"
         m = p.msg
-        self.assertEqual(m.arbitration_id, 0x7E2)
+        self.assertEqual(m.arbitration_id, TWOWAY_CONN_CHANS + 2)
         self.assertEqual(m.data, bytearray([1, 2, 3, 4, 5, 6, 7, 8]))
 
     def test_CANMessageResponseCh0(self):
@@ -116,7 +117,7 @@ class TestTwoWayMessage(unittest.TestCase):
         p.data = bytearray([1, 2, 3, 4, 5, 6, 7, 8])
         p.type = "Response"
         m = p.msg
-        self.assertEqual(m.arbitration_id, 0x7E1)
+        self.assertEqual(m.arbitration_id, TWOWAY_CONN_CHANS + 1)
         self.assertEqual(m.data, bytearray([1, 2, 3, 4, 5, 6, 7, 8]))
 
     def test_CANMessageResponseCh1(self):
@@ -125,7 +126,7 @@ class TestTwoWayMessage(unittest.TestCase):
         p.data = bytearray([1, 2, 3, 4, 5, 6, 7, 8])
         p.type = "Response"
         m = p.msg
-        self.assertEqual(m.arbitration_id, 0x7E3)
+        self.assertEqual(m.arbitration_id, TWOWAY_CONN_CHANS + 3)
         self.assertEqual(m.data, bytearray([1, 2, 3, 4, 5, 6, 7, 8]))
 
 
