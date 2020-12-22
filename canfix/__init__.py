@@ -21,7 +21,7 @@
 from .globals import *
 from .messages import *
 
-def parseMessage(msg):
+def parseMessage(msg, silent=False):
     """Determines the type of CAN-FIX msg
 
     This function takes a CAN message and determines what type of CAN-FIX
@@ -30,51 +30,59 @@ def parseMessage(msg):
 
     :param msg: The CAN message to parse
     :type msg: can.Message
-    :returns:  A message object
+    :param silent: If set to true return None instead of raising excpetions
+    :type silent: bool, optional
+    :returns:  A CAN-FIX message object
 
     """
     log.debug("Parsing message with ID = 0x{0:03X}".format(msg.arbitration_id))
-    if msg.is_error_frame:
-        return None
-    if msg.arbitration_id == 0: # Undefined
-        return None
-    elif msg.arbitration_id < 256:
-        return NodeAlarm(msg)
-    elif msg.arbitration_id < 1536:
-        return Parameter(msg)
-    elif msg.arbitration_id < 2016:
-        if msg.data[0] == 0x00:
-            return NodeIdentification(msg)
-        elif msg.data[0] == 0x01:
-            return BitRateSet(msg)
-        elif msg.data[0] == 0x02:
-            return NodeIDSet(msg)
-        elif msg.data[0] == 0x03:
-            return DisableParameter(msg)
-        elif msg.data[0] == 0x04:
-            return EnableParameter(msg)
-        elif msg.data[0] == 0x05:
-            return NodeReport(msg)
-        elif msg.data[0] == 0x06:
-            return NodeStatus(msg)
-        elif msg.data[0] == 0x07:
-            return UpdateFirmware(msg)
-        elif msg.data[0] == 0x08:
-            return TwoWayConnection(msg)
-        elif msg.data[0] == 0x09:
-            return NodeConfigurationSet(msg)
-        elif msg.data[0] == 0x0A:
-            return NodeConfigurationQuery(msg)
-        elif msg.data[0] == 0x0B:
-            return NodeDescription(msg)
-        elif msg.data[0] >= 0x0C and msg.data[0] <= 0x13:
-            return ParameterSet(msg)
-        else:
-            return NodeSpecific(msg) #TODO This should probably be an error
-    elif msg.arbitration_id < 2048:
-        return TwoWayMsg(msg)
+    try:
+        if msg.is_error_frame:
+            return None
+        if msg.arbitration_id == 0: # Undefined
+            return None
+        elif msg.arbitration_id < 256:
+            return NodeAlarm(msg)
+        elif msg.arbitration_id < 1536:
+            return Parameter(msg)
+        elif msg.arbitration_id < 2016:
+            if msg.data[0] == 0x00:
+                return NodeIdentification(msg)
+            elif msg.data[0] == 0x01:
+                return BitRateSet(msg)
+            elif msg.data[0] == 0x02:
+                return NodeIDSet(msg)
+            elif msg.data[0] == 0x03:
+                return DisableParameter(msg)
+            elif msg.data[0] == 0x04:
+                return EnableParameter(msg)
+            elif msg.data[0] == 0x05:
+                return NodeReport(msg)
+            elif msg.data[0] == 0x06:
+                return NodeStatus(msg)
+            elif msg.data[0] == 0x07:
+                return UpdateFirmware(msg)
+            elif msg.data[0] == 0x08:
+                return TwoWayConnection(msg)
+            elif msg.data[0] == 0x09:
+                return NodeConfigurationSet(msg)
+            elif msg.data[0] == 0x0A:
+                return NodeConfigurationQuery(msg)
+            elif msg.data[0] == 0x0B:
+                return NodeDescription(msg)
+            elif msg.data[0] >= 0x0C and msg.data[0] <= 0x13:
+                return ParameterSet(msg)
+            else:
+                return NodeSpecific(msg) #TODO This should probably be an error
+        elif msg.arbitration_id < 2048:
+            return TwoWayMsg(msg)
 
-        # Default we just return a generic NodeSpecific Message
-        return NodeSpecific(msg)
-    else:
-        return None
+            # Default we just return a generic NodeSpecific Message
+            return NodeSpecific(msg)
+        else:
+            return None
+    except Exception as e:
+        if silent:
+            return None
+        else:
+            raise(e)
