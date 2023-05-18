@@ -25,7 +25,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_RequestMessageCh0(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=TWOWAY_CONN_CHANS, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -34,7 +34,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_RequestMessageCh1(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 2, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 2, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -43,7 +43,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_RequestMessageCh15(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 14, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 14, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -51,7 +51,7 @@ class TestTwoWayMessage(unittest.TestCase):
         self.assertEqual(p.type,"Request")
 
     def test_RequestMessageCh0NoData(self):
-        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS)
+        msg = can.Message(is_extended_id=False, arbitration_id=TWOWAY_CONN_CHANS)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data,b'')
@@ -60,7 +60,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_ResponseMessageCh0(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=0x7E1, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x7E1, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -69,7 +69,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_ResponseMessageCh1(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=0x7E3, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x7E3, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -78,7 +78,7 @@ class TestTwoWayMessage(unittest.TestCase):
 
     def test_ResponseMessageCh15(self):
         d = bytearray([0x01, 0x00, 0xAB, 0xCD, 0xEF, 0xFF, 0xEE, 0x11])
-        msg = can.Message(extended_id=False, arbitration_id=0x7FF, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x7FF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data, b'\x01\x00\xAB\xCD\xEF\xFF\xEE\x11')
@@ -86,7 +86,7 @@ class TestTwoWayMessage(unittest.TestCase):
         self.assertEqual(p.type,"Response")
 
     def test_ResponseMessageCh0NoData(self):
-        msg = can.Message(extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 1)
+        msg = can.Message(is_extended_id=False, arbitration_id=TWOWAY_CONN_CHANS + 1)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.TwoWayMsg)
         self.assertEqual(p.data,b'')

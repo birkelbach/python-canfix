@@ -26,13 +26,13 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterFlaps(self):
         d = bytearray([0x00, 0x00, 0x00, 0x01])
-        msg = can.Message(arbitration_id=0x100, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x100, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Flap Control Switches #1")
 
     def test_ParameterEncoder(self):
         d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(arbitration_id=0x11B, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x11B, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Encoder Input (High Priority) #2")
         self.assertEqual(p.value, [0, 0, [False]*8])
@@ -49,7 +49,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterPitchControlPosition(self):
         d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(arbitration_id=0x124, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x124, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Pitch Control Position")
         self.assertEqual(p.value, 0)
@@ -71,7 +71,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterIndicatedAirspeed(self):
         d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(arbitration_id=0x183, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x183, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Indicated Airspeed")
         self.assertEqual(p.value, 0.0)
@@ -88,7 +88,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterIndicatedAltitude(self):
         d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(arbitration_id=0x184, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x184, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Indicated Altitude")
         self.assertEqual(p.value, 0.0)
@@ -106,7 +106,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
     def test_ParameterLatitude(self):
 
         d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(arbitration_id=0x1C3, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x1C3, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Aircraft Position Latitude")
         self.assertEqual(p.value, 0.0)
@@ -122,21 +122,21 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterAircraftIdentifier(self):
         d = bytearray([0x00, 0x00, 0x00, 0x37, 0x32, 0x37, 0x57, 0x42])
-        msg = can.Message(arbitration_id=0x587, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x587, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Aircraft Identifier")
         self.assertEqual(p.value, "727WB")
 
     def test_ParameterTime(self):
         d = bytearray([0x02, 0x00, 0x00, 13, 23, 59, 0x2C, 0x02])
-        msg = can.Message(arbitration_id=0x580, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x580, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Time")
         self.assertEqual(p.value, [13, 23, 59, 556])
 
     def test_ParameterDate(self):
         d = bytearray([0x02, 0x00, 0x00, 0xE0, 0x07, 7, 27])
-        msg = can.Message(arbitration_id=0x581, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x581, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Date")
         self.assertEqual(p.value, [2016, 7, 27])
@@ -147,7 +147,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
     # exception.
     def test_ParameterShortData(self):
         d = bytearray([0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(arbitration_id=0x184, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x184, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Indicated Altitude")
         self.assertEqual(p.value, None)
@@ -155,21 +155,21 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterIndex(self):
         d = bytearray([0x00, 0x00, 0x00, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
         self.assertEqual(p.index, 0)
 
         d = bytearray([0x00, 0x01, 0x00, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
         self.assertEqual(p.index, 1)
 
         d = bytearray([0x00, 0xFF, 0x00, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
@@ -177,7 +177,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterQuality(self):
         d = bytearray([0x00, 0x00, 0x00, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
@@ -186,7 +186,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
         self.assertEqual(p.failure, False)
 
         d = bytearray([0x00, 0x00, 0x01, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
@@ -195,7 +195,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
         self.assertEqual(p.failure, False)
 
         d = bytearray([0x00, 0x00, 0x02, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
@@ -204,7 +204,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
         self.assertEqual(p.failure, False)
 
         d = bytearray([0x00, 0x00, 0x04, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
@@ -213,7 +213,7 @@ class TestParameterSimpleReceiver(unittest.TestCase):
         self.assertEqual(p.failure, True)
 
         d = bytearray([0x00, 0x00, 0x07, 0xd2, 0x04])
-        msg = can.Message(arbitration_id=0x501, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x501, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Cylinder Head Temperature #2")
         self.assertEqual(p.value, 123.4)
@@ -223,21 +223,21 @@ class TestParameterSimpleReceiver(unittest.TestCase):
 
     def test_ParameterMeta(self):
         d = bytearray([0x00, 0x00, 0x00, 0x1c, 0x04]) # 1052
-        msg = can.Message(arbitration_id=0x183, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x183, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Indicated Airspeed")
         self.assertEqual(p.value, 105.2)
         self.assertEqual(p.meta, None)
 
         d = bytearray([0x00, 0x00, 0x10, 0x1c, 0x04]) # 1052
-        msg = can.Message(arbitration_id=0x183, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x183, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Indicated Airspeed")
         self.assertEqual(p.value, 105.2)
         self.assertEqual(p.meta, 'Min')
 
         d = bytearray([0x00, 0x00, 0xF0, 0x1c, 0x04]) # 1052
-        msg = can.Message(arbitration_id=0x183, extended_id=False, data=d)
+        msg = can.Message(arbitration_id=0x183, is_extended_id=False, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p.name, "Indicated Airspeed")
         self.assertEqual(p.value, 105.2)

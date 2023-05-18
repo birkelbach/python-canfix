@@ -69,7 +69,7 @@ Example Usage::
     >>> na.data = [4,5,6,7]
     >>> na.msg
     >>> na.msg
-    can.Message(timestamp=0.0, is_remote_frame=False, extended_id=False, is_error_frame=False, arbitration_id=0xc, dlc=0,
+    can.Message(timestamp=0.0, is_remote_frame=False, is_extended_id=False, is_error_frame=False, arbitration_id=0xc, dlc=0,
     data=[0x9, 0xb1, 0x4, 0x5, 0x6, 0x7])
 
     >>> msg = bus.recv() # Assume we read the same message that we created above
@@ -159,7 +159,7 @@ Example Usage::
     >>> print(pa)
     [2] Indicated Airspeed: 123.4 knots
     >>> pa.msg
-    can.Message(timestamp=0.0, is_remote_frame=False, extended_id=False, is_error_frame=False, arbitration_id=0x183,
+    can.Message(timestamp=0.0, is_remote_frame=False, is_extended_id=False, is_error_frame=False, arbitration_id=0x183,
     dlc=0, data=[0x2, 0x0, 0x0, 0xd2, 0x4])
 
 
@@ -213,7 +213,7 @@ Example Usage::
 
   >>> msg = bus.recv()
   >>> msg
-  can.Message(timestamp=0.0, is_remote_frame=False, extended_id=False,
+  can.Message(timestamp=0.0, is_remote_frame=False, is_extended_id=False,
   is_error_frame=False, arbitration_id=0x183, dlc=5,
   data=[0xc, 0x0, 0x0, 0xd2, 0x4])
   >>> p = canfix.parseMessage(msg)

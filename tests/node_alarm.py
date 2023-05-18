@@ -24,7 +24,7 @@ class TestNodeAlarm(unittest.TestCase):
 
     def test_FirstNodeNoDataFromMessage(self):
         d = bytearray([0x01, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x01, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x01, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.NodeAlarm)
         self.assertEqual(p.alarm, 1)
@@ -33,7 +33,7 @@ class TestNodeAlarm(unittest.TestCase):
 
     def test_LastNodeNoDataFromMessage(self):
         d = bytearray([0x01, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0xFF, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0xFF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p,canfix.NodeAlarm)
         self.assertEqual(p.alarm, 1)
@@ -41,20 +41,20 @@ class TestNodeAlarm(unittest.TestCase):
         self.assertEqual(p.node,255)
 
     def test_NodeMissingAlarmFromMessage(self):
-        msg = can.Message(extended_id=False, arbitration_id=0x01)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x01)
 
         with self.assertRaises(ValueError):
             p = canfix.parseMessage(msg)
 
     def test_ZeroNodeNotNodeAlarm(self):
         d = bytearray([0x01, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x00, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x00, data=d)
         p = canfix.parseMessage(msg)
         self.assertNotIsInstance(p,canfix.NodeAlarm)
 
     def test_0x100NodeNotNodeAlarm(self):
         d = bytearray([0x01, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x100, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x100, data=d)
         p = canfix.parseMessage(msg)
         self.assertNotIsInstance(p,canfix.NodeAlarm)
 

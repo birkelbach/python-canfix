@@ -37,7 +37,7 @@ class NodeSpecific(object):
         if msg != None:
             self.setMessage(msg)
         else:
-            self.controlCode = 0
+            self.controlCode = None
             self.data = bytearray([])
 
     def setMessage(self, msg):
@@ -48,7 +48,7 @@ class NodeSpecific(object):
         self.data = msg.data[1:]
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + self.start_id, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + self.start_id, is_extended_id=False)
         msg.data.append(self.controlCode)
         #msg.data.append(self.destNode)
         for each in self.data:

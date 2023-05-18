@@ -32,7 +32,10 @@ class UpdateFirmware(NodeSpecific):
             self.sendNode = None
             self.destNode = node
             self.errorCode = 0x00
-            if verification is not None: self.verification = verification
+            if verification is not None:
+                self.__verification = verification
+            else:
+                self.__verification = None
             if channel is not None: self.channel = channel
 
     def setMessage(self, msg):
@@ -57,7 +60,7 @@ class UpdateFirmware(NodeSpecific):
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + self.start_id, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + self.start_id, is_extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg

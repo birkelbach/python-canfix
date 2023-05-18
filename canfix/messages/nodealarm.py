@@ -40,7 +40,7 @@ class NodeAlarm(object):
         self.data.extend(bytearray(max(0, 5-len(self.data)))) # Pad data with zeros
 
     def getMessage(self):
-        msg = can.Message(extended_id=False)
+        msg = can.Message(is_extended_id=False)
         msg.arbitration_id = self.node
         msg.data.append(int(self.alarm % 256))
         msg.data.append(int(self.alarm / 256))

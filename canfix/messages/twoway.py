@@ -38,7 +38,7 @@ class TwoWayMsg(object):
             self.type = "Response"
 
     def getMessage(self):
-        msg = can.Message(extended_id=False)
+        msg = can.Message(is_extended_id=False)
         msg.arbitration_id = self.channel*2 + TWOWAY_CONN_CHANS
         if self.type == "Response":
             msg.arbitration_id += 1

@@ -53,3 +53,6 @@ class MsgSizeError(Exception):
 
 class TypeMissingError(Exception):
     pass
+
+class NotFound(Exception):
+    pass

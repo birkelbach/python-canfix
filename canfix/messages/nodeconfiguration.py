@@ -71,7 +71,7 @@ class NodeConfigurationSet(NodeSpecific):
         self.destNode = msg.data[1]
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + self.start_id, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + self.start_id, is_extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
@@ -151,7 +151,7 @@ class NodeConfigurationQuery(NodeSpecific):
         self.rawdata = msg.data[2:]
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + self.start_id, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + self.start_id, is_extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg

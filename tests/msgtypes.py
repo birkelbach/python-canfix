@@ -24,7 +24,7 @@ class TestParameter(unittest.TestCase):
 
     def test_None(self):
         d = bytearray([0x01, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x00, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x00, data=d)
         p = canfix.parseMessage(msg)
         self.assertEqual(p, None)
 
@@ -33,34 +33,34 @@ class TestParameter(unittest.TestCase):
         The following should NOT assert
         """
         d = bytearray([0,0,4,0,0,0,0,0])
-        msg = can.Message(extended_id=False, arbitration_id=0xc, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0xc, data=d)
         p = canfix.parseMessage(msg)
 
         d = bytearray([1,2,3,4])
-        msg = can.Message(extended_id=False, arbitration_id=0x123, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x123, data=d)
         p = canfix.parseMessage(msg)
 
-        msg = can.Message(extended_id=False, arbitration_id=0x123, data=[0], is_error_frame=True)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x123, data=[0], is_error_frame=True)
         p = canfix.parseMessage(msg)
         self.assertTrue(p is None)
 
     def test_FirstNodeAlarm(self):
         d = bytearray([0x01, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x01, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x01, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeAlarm)
         self.assertEqual(p.node, 0x01)
 
     def test_LastNodeAlarm(self):
         d = bytearray([0x01, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0xFF, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0xFF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeAlarm)
         self.assertEqual(p.node, 0xFF)
 
     def test_FirstParameter(self):
         d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x100, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x100, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.Parameter)
         self.assertEqual(p.node, 0x01)
@@ -69,7 +69,7 @@ class TestParameter(unittest.TestCase):
 
     def test_LastDefinedParameter(self):
         d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x587, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x587, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.Parameter)
         self.assertEqual(p.node, 0x01)
@@ -79,7 +79,7 @@ class TestParameter(unittest.TestCase):
     # TODO Right now undefined parameters raise an excpetion.
     # def test_LastParameter(self):
     #     d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
-    #     msg = can.Message(extended_id=False, arbitration_id=0x6DF, data=d)
+    #     msg = can.Message(is_extended_id=False, arbitration_id=0x6DF, data=d)
     #     p = canfix.parseMessage(msg)
     #     self.assertIsInstance(p, canfix.Parameter)
     #     self.assertEqual(p.node, 0x01)
@@ -88,7 +88,7 @@ class TestParameter(unittest.TestCase):
 
     def test_FirstTwoWayMessage(self):
         d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x7E0, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x7E0, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.TwoWayMsg)
         self.assertEqual(p.channel, 0x00)
@@ -96,7 +96,7 @@ class TestParameter(unittest.TestCase):
 
     def test_LastTwoWayMessage(self):
         d = bytearray([0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x7FF, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x7FF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.TwoWayMsg)
         self.assertEqual(p.channel, 0x0F)
@@ -104,7 +104,7 @@ class TestParameter(unittest.TestCase):
 
     def test_FirstNodeSpecificMessage(self):
         d = bytearray([0x61, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x6E0, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x6E0, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0x00)
@@ -112,7 +112,7 @@ class TestParameter(unittest.TestCase):
 
     def test_LastNodeSpecificMessage(self):
         d = bytearray([0x61, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00])
-        msg = can.Message(extended_id=False, arbitration_id=0x7DF, data=d)
+        msg = can.Message(is_extended_id=False, arbitration_id=0x7DF, data=d)
         p = canfix.parseMessage(msg)
         self.assertIsInstance(p, canfix.NodeSpecific)
         self.assertEqual(p.sendNode, 0xFF)

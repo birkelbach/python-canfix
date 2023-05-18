@@ -66,7 +66,7 @@ class Parameter(object):
     def setIdentifier(self, identifier):
         if identifier in parameters:
             log.debug("Setting parameter id {}".format(identifier))
-            self.__msg = can.Message(arbitration_id=identifier, extended_id=False)
+            self.__msg = can.Message(arbitration_id=identifier, is_extended_id=False)
         else:
             raise ValueError("Bad Parameter Identifier Given")
 
@@ -82,7 +82,7 @@ class Parameter(object):
         x = getParameterByName(name)
         if x:
             log.debug("Setting parameter id to {}, based on name {}".format(x.id, name))
-            self.__msg = can.Message(arbitration_id=x.id, extended_id=False)
+            self.__msg = can.Message(arbitration_id=x.id, is_extended_id=False)
             self.__identifier = x.id
             self.__parameterData(self.__msg.arbitration_id)
             return

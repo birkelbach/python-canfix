@@ -28,7 +28,15 @@ class NodeStatus(NodeSpecific):
     # These are the defined types in the protocol.  The parameter would be
     # used to index this list.  For others the type would have to be set before
     # the value accessed.
-    knownTypes = (("WORD",1), ("INT",0.1), ("UDINT",1), ("UDINT",1), ("INT",0.1), ("UDINT",1))
+    knownTypes = (("Status","WORD",1),
+                  ("Unit Temperature", "INT",0.1),
+                  ("Supply Voltage","INT",0.1),
+                  ("CAN Transmit Frame Count", "UDINT",1),
+                  ("CAN Receive Frame Count", "UDINT",1),
+                  ("CAN Transmit Error Count", "UDINT",1),
+                  ("CAN Transmit Error Count", "UDINT",1),
+                  ("CAN Receive Overrun Count", "UDINT",1),
+                  ("Serial Number", "UDINT",1))
     def __init__(self, msg=None, parameter=None, value=None, datatype=None, multiplier=1.0):
         if msg != None:
             self.setMessage(msg)
@@ -57,12 +65,12 @@ class NodeStatus(NodeSpecific):
             ts = None
         if ts:
             if msg.dlc != (3 + ts):
-                raise MsgSizeError("Message size is incorrect")
+                raise MsgSizeError("Message size is incorrect - {}".format(msg))
         if msg.dlc < 3:
             raise MsgSizeError("Message size is incorrect")
 
     def getMessage(self):
-        msg = can.Message(arbitration_id=self.sendNode + self.start_id, extended_id=False)
+        msg = can.Message(arbitration_id=self.sendNode + self.start_id, is_extended_id=False)
         msg.data = self.data
         msg.dlc = len(msg.data)
         return msg
@@ -77,8 +85,8 @@ class NodeStatus(NodeSpecific):
             raise ValueError("Paremeter Type must be between 0 and 65535")
         self.__parameter = parameter
         if self.__parameter < len(self.knownTypes):
-            self.type = self.knownTypes[self.__parameter][0]
-            self.multiplier = self.knownTypes[self.__parameter][1]
+            self.type = self.knownTypes[self.__parameter][1]
+            self.multiplier = self.knownTypes[self.__parameter][2]
         else:
             self.type = None # This'll cause an error somewhere.
             self.multiplier = 1
@@ -108,9 +116,23 @@ class NodeStatus(NodeSpecific):
 
     value = property(getValue, setValue)
 
-
     def __str__(self):
         s = "[" + str(self.sendNode) + "]"
-        s += "->[" + str(self.destNode) + "] "
         s += self.codes[self.controlCode]
+        if self.__parameter < len(self.knownTypes):
+            if self.__parameter == 0 :
+                if self.value == [False]*16:
+                    s += ": {} GOOD".format(self.knownTypes[self.__parameter][0])
+                else:
+                    errors = ""
+                    for each in self.value:
+                        if each:
+                            errors += '1'
+                        else:
+                            errors += '0'
+                    s += ": {} ERROR {}".format(self.knownTypes[self.__parameter][0], errors)
+            else:
+                s += ": {} {}".format(self.knownTypes[self.__parameter][0], self.value)
+        else:
+            s+= ": Parameter {} {}".format(self.__parameter, self.data)        
         return s
