@@ -82,21 +82,25 @@ def unpack(datatype, data, multiplier):
 # This function takes a datatype, value and multiplier and converts the single
 # value into a bytearray and returns that bytearray
 def pack(datatype, value, multiplier):
-    table = {"SHORT":"<b", "USHORT":"<B", "UINT":"<H",
+    table = {"BYTE":"<b", "WORD":"<H", "SHORT":"<b", "USHORT":"<B", "UINT":"<H",
              "INT":"<h", "DINT":"<l", "UDINT":"<L", "FLOAT":"<f"}
 
-    if datatype == "BYTE":
-        x = bytearray([0x00])
-        for bit in range(8):
-            if value[bit]:
-                x[0] |= 0x01<<bit
-    elif datatype == "WORD":
-        x = bytearray([0x00, 0x00])
-        for bit in range(8):
-            if value[bit]:
-                x[0] |= 0x01<<bit
-            if value[bit+8]:
-                x[1] |= 0x01<<bit
+    # We represent the BYTE and WORD types as a list of bools but the caller
+    # may just send us an int.  If it's the list we'll deal with it here
+    # otherwise we'll deal with it as an int.
+    if isinstance(value, list): 
+        if datatype == "BYTE":
+            x = bytearray([0x00])
+            for bit in range(8):
+                if value[bit]:
+                    x[0] |= 0x01<<bit
+        elif datatype == "WORD":
+            x = bytearray([0x00, 0x00])
+            for bit in range(8):
+                if value[bit]:
+                    x[0] |= 0x01<<bit
+                if value[bit+8]:
+                    x[1] |= 0x01<<bit
     else:
         try:
             if datatype != "FLOAT":
