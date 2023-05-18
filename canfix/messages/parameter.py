@@ -214,15 +214,36 @@ class Parameter(object):
     fullName = property(getFullName)
 
     def valueStr(self, units=False):
-        if self.__identifier == 0x580: #Time
-            return "%02i:%02i:%02i" % (self.value[0], self.value[1], self.value[2])
-        elif self.__identifier == 0x581: #Date
-            return "%i-%i-%i" % (self.value[0], self.value[1], self.value[2])
-        else:
-            if self.units:
-                return "{:g} {}".format(self.value, self.units)
+        try:
+            if self.__identifier == 0x580: #Time
+                return "%02i:%02i:%02i" % (self.value[0], self.value[1], self.value[2])
+            elif self.__identifier == 0x581: #Date
+                return "%i-%i-%i" % (self.value[0], self.value[1], self.value[2])
+            elif self.__identifier in [0x11A, 0x11B, 0x300, 0x301, 0x302, 0x303, 0x304, 0x305, 0x306, 0x307]:
+                s = f"{self.value[0]}, {self.value[1]}, "
+                for bit in self.value[2]:
+                    if bit:
+                        s += '1'
+                    else:
+                        s += '0'
+                return s
+            elif self.type[:5] == 'BYTE[': # Handle byte arrays
+                s = ''
+                for b in self.value:
+                    for bit in b:
+                        if bit:
+                            s += '1'
+                        else:
+                            s += '0'
+                    s += ' '
+                return s
             else:
-                return str(self.value)
+                if self.units:
+                    return "{:g} {}".format(self.value, self.units)
+                else:
+                    return str(self.value)
+        except:
+            return "ERR"
 
 
     def __eq__(self, other):
