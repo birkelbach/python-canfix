@@ -70,6 +70,10 @@ def unpack(datatype, data, multiplier):
     # If we get here then the data type is a numeric type or a CHAR
     try:
         x = struct.unpack(table[datatype], data)[0]
+        if multiplier != 1:
+            return x * multiplier
+        else:
+            return x
         return x * multiplier
     except KeyError:
         # If we get a KeyError on the dict then it's a CHAR
@@ -110,8 +114,6 @@ def pack(datatype, value, multiplier):
         except KeyError:
             if "CHAR" in datatype:
                 return [ord(value)]
-            # else:
-            #     raise
             return None
     return x
 

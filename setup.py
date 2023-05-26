@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='python-canfix',
-    version='0.2.0',
+    version='0.3.0',
     long_description=open('README.rst').read(),
     description="Python CAN-FIX Library",
     author="Phil Birkelbach",

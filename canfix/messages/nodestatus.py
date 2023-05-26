@@ -117,7 +117,7 @@ class NodeStatus(NodeSpecific):
     value = property(getValue, setValue)
 
     def __str__(self):
-        s = "[" + str(self.sendNode) + "]"
+        s = "[" + str(self.sendNode) + "] "
         s += self.codes[self.controlCode]
         if self.__parameter < len(self.knownTypes):
             if self.__parameter == 0 :
@@ -134,5 +134,5 @@ class NodeStatus(NodeSpecific):
             else:
                 s += ": {} {}".format(self.knownTypes[self.__parameter][0], self.value)
         else:
-            s+= ": Parameter {} {}".format(self.__parameter, self.data)        
+            s+= ": Parameter {} {}".format(self.__parameter, self.data)
         return s

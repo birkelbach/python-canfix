@@ -237,6 +237,16 @@ class Parameter(object):
                             s += '0'
                     s += ' '
                 return s
+            elif self.type =='BYTE' or self.type == 'WORD':
+                s=''
+                for i, bit in enumerate(self.value):
+                    if bit:
+                            s += '1'
+                    else:
+                        s += '0'
+                    if i == 8:
+                        s += ' '
+                return s
             else:
                 if self.units:
                     return "{:g} {}".format(self.value, self.units)
@@ -272,29 +282,15 @@ class Parameter(object):
             s = s + ' ' + self.indexName + ' ' + str(self.index+1)
         s = s + ': '
         if self.value != None:
-            if isinstance(self.value, list):
-                if self.type == "BYTE" or self.type == "WORD":
-                    n = 0 #loop counter
-                    for each in reversed(self.value):
-                        if each == True:
-                            s = s+'1'
-                        else:
-                            s = s+'0'
-                        n += 1
-                        if n % 4 == 0: #add a space every four bits
-                            s = s+' '
-                else:
-                    for each in self.value:
-                        s = s + str(each) + ','
-                s = s.strip(', ')
-            else:
-               s = s + str(self.value)
-            if self.units != None:
-                s = s + ' ' + self.units
-            if self.failure:
-                s = s + ' [FAIL]'
-            if self.quality:
-                s = s + ' [QUAL]'
-            if self.annunciate:
-                s = s + ' [ANNUNC]'
+            s += self.valueStr(units=True)
+        else:
+            s = s + str(self.value)
+        # if self.units != None:
+        #     s = s + ' ' + self.units
+        if self.failure:
+            s = s + ' [FAIL]'
+        if self.quality:
+            s = s + ' [QUAL]'
+        if self.annunciate:
+            s = s + ' [ANNUNC]'
         return s
