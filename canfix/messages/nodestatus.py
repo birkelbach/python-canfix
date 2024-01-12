@@ -36,7 +36,8 @@ class NodeStatus(NodeSpecific):
                   ("CAN Transmit Error Count", "UDINT",1),
                   ("CAN Transmit Error Count", "UDINT",1),
                   ("CAN Receive Overrun Count", "UDINT",1),
-                  ("Serial Number", "UDINT",1))
+                  ("Serial Number", "UDINT",1),
+                  ("Quorum", "UINT", 1))
     def __init__(self, msg=None, parameter=None, value=None, datatype=None, multiplier=1.0):
         if msg != None:
             self.setMessage(msg)
