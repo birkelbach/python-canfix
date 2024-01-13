@@ -99,7 +99,7 @@ for each in cf["parameters"]:
     p.units = each["units"] if "units" in each else None
     p.format = each["format"] if "format" in each else None
     p.type = each["type"]
-    p.multiplier = float(each["multiplier"]) if "multiplier" in each else None
+    p.multiplier = float(each["multiplier"]) if "multiplier" in each else 1.0
     p.min = each["min"] if "min" in each else None
     p.max = each["max"] if "max" in each else None
     p.index = each["index"]
